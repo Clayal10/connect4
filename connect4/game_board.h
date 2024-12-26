@@ -10,9 +10,6 @@
 //	-Clean up find_winner()
 //	-Make it a 2d game!
 
-extern bool try_again = false;
-
-
 class Board {
 public:
 	std::vector<std::vector<char>> game_board;
@@ -33,54 +30,8 @@ public:
 			}
 		}
 	}
-	void update_board(int col, char player, bool in_minimax) {
-		for (int i = 0; i < game_board.size(); i++) {
-			if (game_board[i][col] == '*') {
-				if (i == 5 || game_board[i + 1][col] != '*') {
-					if (player == 'H') {
-						game_board[i][col] = 'X';
-					}
-					else {
-						game_board[i][col] = 'O';
-					}
-					try_again = false;
-					break;
-				}
-			}
-			else {
-				if (!in_minimax) {
-					std::cout << "\nYou Must Pick A Different Column\n\n";
-				}
-				try_again = true;
-				break;
-			}
-		}
-	}
-
-	std::vector<std::vector<char>> child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax) {
-		for (int i = 0; i < game_board_child.size(); i++) {
-			if (game_board_child[i][col] == '*') {
-				if (i == 5 || game_board_child[i + 1][col] != '*') {
-					if (player == 'H') {
-						game_board_child[i][col] = 'X';
-					}
-					else {
-						game_board_child[i][col] = 'O';
-					}
-					try_again = false;
-					break;
-				}
-			}
-			else {
-				if (!in_minimax) {
-					std::cout << "\nYou Must Pick A Different Column\n\n";
-				}
-				try_again = true;
-				break;
-			}
-		}
-		return game_board_child;
-	}
+	void update_board(int col, char player, bool in_minimax);
+	std::vector<std::vector<char>> child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax);
 
 	char find_winner() {
 		//Returns the entity who won
@@ -180,3 +131,7 @@ public:
 		}
 	}
 };
+
+void play(int game_mode, Board* board, std::vector<std::vector<int>>* moves);
+void play_human(Board* board, std::vector<std::vector<int>>* moves);
+void play_machine(Board* board, std::vector<std::vector<int>>* moves);
