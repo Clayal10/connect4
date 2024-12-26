@@ -11,43 +11,33 @@ extern char up_next = 'H'; //start with human
 //		-Don't make it too intensive but maybe make a proper minimax function.
 //		 This can be difficult since connect 4 has so many possibilities but we will try!
 
-void play(int game_mode, Board* board, std::vector<std::vector<int>>* moves) {
-	switch (game_mode) {
-	case 0:
-		play_human(board, moves);
-		break;
-	case 1:
-		play_machine(board, moves);
-		break;
-	}
-}
 
 void play_human(Board* board, std::vector<std::vector<int>>* moves) {
-
 	//print the board for the first time
 	board->print_board();
 
 	std::vector<int> move(2);
 	int selection;
 	int selection_val;
+	do {
+		//just do this section every other time (the other time will be AI)
+		if (up_next == 'H') {
+			std::cout << "Pick a Column for your move: ";
+			std::cin >> selection;
+			move[0] = 1;
+			move[1] = selection;
+			moves->push_back(move);
+		}
+		else {
+			//stuff for ai
+			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
+			move[0] = 2;
+			move[1] = selection;
+			moves->push_back(move);
+		}
 
-	//just do this section every other time (the other time will be AI)
-	if (up_next == 'H') {
-		std::cout << "Pick a Column for your move: ";
-		std::cin >> selection;
-		move[0] = 1;
-		move[1] = selection;
-		moves->push_back(move);
-	}
-	else {
-		//stuff for ai
-		selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-		move[0] = 2;
-		move[1] = selection;
-		moves->push_back(move);
-	}
-
-	board->update_board(selection, up_next, false);
+		board->update_board(selection, up_next, false); // doesn't update if invalid placement
+	} while (try_again);
 
 	//swap who goes next
 	if (up_next == 'H')

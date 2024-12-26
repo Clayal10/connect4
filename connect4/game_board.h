@@ -132,6 +132,5 @@ public:
 	}
 };
 
-void play(int game_mode, Board* board, std::vector<std::vector<int>>* moves);
 void play_human(Board* board, std::vector<std::vector<int>>* moves);
 void play_machine(Board* board, std::vector<std::vector<int>>* moves);
