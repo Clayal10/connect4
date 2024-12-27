@@ -6,10 +6,8 @@
 extern bool try_again = false;
 extern char up_next = 'H'; //start with human
 
-//TODO
-//	-Clean up minimax
-//		-Don't make it too intensive but maybe make a proper minimax function.
-//		 This can be difficult since connect 4 has so many possibilities but we will try!
+
+
 
 
 void play_human(Board* board, std::vector<std::vector<int>>* moves) {
@@ -118,7 +116,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 			}
 		}
 		//for each child, could be while loop
-		//for(int i=0; i<children_states.size(); i++){
+		//for(unsigned unsigned int i=0; i<children_states.size(); i++){
 		while(child_num<7){
 			col = rand()%7;
 			child = child_board(game_board, col, player, true);
@@ -152,7 +150,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 		}else{
 			player = 'H';
 		}
-		//for(int i=0; i<children_states.size(); i++){
+		//for(unsigned unsigned int i=0; i<children_states.size(); i++){
 		while(child_num<7){
 			col = rand()%7;
 			child = child_board(game_board, col, player, true);
@@ -187,8 +185,8 @@ int Board::h_eval(char player){
 	/*The current setup is only rewarding very selfishly, need to block the opponent as well*/
 	if(player == 'H'){
 		//horizontal right check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j][i+1] != 'O' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
 					value++;
 					if(game_board[j][i+1] == 'X' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
@@ -204,8 +202,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//horizontal left check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size(); i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'X' && game_board[j][i-1] != 'O' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
 					value++;
 					if(game_board[j][i-1] == 'X' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
@@ -221,8 +219,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//vertical up check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=3; i<game_board.size(); i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'X' && game_board[i-1][j] != 'O' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
 					value++;
 					if(game_board[i-1][j] == 'X' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
@@ -238,8 +236,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//vetical down check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=0; i<game_board.size()-3; i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'X' && game_board[i+1][j] != 'O' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
 					value++;
 					if(game_board[i+1][j] == 'X' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
@@ -255,8 +253,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//diagonal up check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i+1] != 'O' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
 					value++;
 					if(game_board[j-1][i+1] == 'X' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
@@ -272,8 +270,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//diagonal down check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i-1] != 'O' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
 					value++;
 					if(game_board[j-1][i-1] == 'X' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
@@ -293,8 +291,8 @@ int Board::h_eval(char player){
 		
 	}else{//same thing but with 'O' instead of 'X'
 		//horizontal right check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j][i+1] != 'X' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
 					value++;
 					if(game_board[j][i+1] == 'O' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
@@ -310,8 +308,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//horizontal left check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size(); i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'O' && game_board[j][i-1] != 'X' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
 					value++;
 					if(game_board[j][i-1] == 'O' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
@@ -327,8 +325,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//vertical up check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=3; i<game_board.size(); i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'O' && game_board[i-1][j] != 'X' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
 					value++;
 					if(game_board[i-1][j] == 'O' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
@@ -344,8 +342,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//vetical down check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=0; i<game_board.size()-3; i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'O' && game_board[i+1][j] != 'X' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
 					value++;
 					if(game_board[i+1][j] == 'O' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
@@ -361,8 +359,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//diagonal up check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i+1] != 'X' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
 					value++;
 					if(game_board[j-1][i+1] == 'O' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
@@ -378,8 +376,8 @@ int Board::h_eval(char player){
 			}
 		}
 		//diagonal down check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i-1] != 'X' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
 					value++;
 					if(game_board[j-1][i-1] == 'O' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
@@ -401,7 +399,7 @@ int Board::h_eval(char player){
 }
 
 void Board::update_board(int col, char player, bool in_minimax) {
-	for (int i = 0; i < game_board.size(); i++) {
+	for (unsigned int i = 0; i < game_board.size(); i++) {
 		if (game_board[i][col] == '*') {
 			if (i == 5 || game_board[i + 1][col] != '*') {
 				if (player == 'H') {
@@ -425,7 +423,7 @@ void Board::update_board(int col, char player, bool in_minimax) {
 }
 
 std::vector<std::vector<char>> Board::child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax) {
-	for (int i = 0; i < game_board_child.size(); i++) {
+	for (unsigned int i = 0; i < game_board_child.size(); i++) {
 		if (game_board_child[i][col] == '*') {
 			if (i == 5 || game_board_child[i + 1][col] != '*') {
 				if (player == 'H') {

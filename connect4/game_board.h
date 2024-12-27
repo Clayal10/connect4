@@ -15,8 +15,8 @@ public:
 	std::vector<std::vector<char>> game_board;
 
 	void print_board() {
-		for (int i = 0; i < game_board.size(); i++) {
-			for (int j = 0; j < game_board[0].size(); j++) {
+		for (unsigned int i = 0; i < game_board.size(); i++) {
+			for (unsigned int j = 0; j < game_board[0].size(); j++) {
 				std::cout << game_board[i][j] << " ";
 			}
 			std::cout << "\n";
@@ -24,8 +24,8 @@ public:
 		std::cout << "\n";
 	}
 	void reset_board() {
-		for (int i = 0; i < game_board.size(); i++) {
-			for (int j = 0; j < game_board[0].size(); j++) {
+		for (unsigned int i = 0; i < game_board.size(); i++) {
+			for (unsigned int j = 0; j < game_board[0].size(); j++) {
 				game_board[i][j] = '*';
 			}
 		}
@@ -38,8 +38,8 @@ public:
 		//TODO Clean this up
 
 		//horizontal win
-		for (int j = 0; j < game_board.size(); j++) {
-			for (int i = 0; i < game_board[0].size() - 3; i++) {
+		for (unsigned int j = 0; j < game_board.size(); j++) {
+			for (unsigned int i = 0; i < game_board[0].size() - 3; i++) {
 				if (game_board[j][i] == 'X' && game_board[j][i + 1] == 'X' &&
 					game_board[j][i + 2] == 'X' && game_board[j][i + 3] == 'X') {
 					return 'H';
@@ -47,8 +47,8 @@ public:
 			}
 		}
 		//vertical win
-		for (int j = 0; j < game_board[0].size(); j++) {
-			for (int i = 0; i < game_board.size() - 3; i++) {
+		for (unsigned int j = 0; j < game_board[0].size(); j++) {
+			for (unsigned int i = 0; i < game_board.size() - 3; i++) {
 				if (game_board[i][j] == 'X' && game_board[i + 1][j] == 'X' &&
 					game_board[i + 2][j] == 'X' && game_board[i + 3][j] == 'X') {
 					return 'H';
@@ -56,8 +56,8 @@ public:
 			}
 		}
 		//diagonal up win
-		for (int i = 3; i < game_board.size(); i++) {
-			for (int j = 0; j < game_board[0].size() - 3; j++) {
+		for (unsigned int i = 3; i < game_board.size(); i++) {
+			for (unsigned int j = 0; j < game_board[0].size() - 3; j++) {
 				if (game_board[i][j] == 'X' && game_board[i - 1][j + 1] == 'X' &&
 					game_board[i - 2][j + 2] == 'X' && game_board[i - 3][j + 3] == 'X') {
 					return 'H';
@@ -66,8 +66,8 @@ public:
 
 		}
 		//diagonal down win
-		for (int i = 3; i < game_board.size(); i++) {
-			for (int j = 3; j < game_board[0].size(); j++) {
+		for (unsigned int i = 3; i < game_board.size(); i++) {
+			for (unsigned int j = 3; j < game_board[0].size(); j++) {
 				if (game_board[i][j] == 'X' && game_board[i - 1][j - 1] == 'X' &&
 					game_board[i - 2][j - 2] == 'X' && game_board[i - 3][j - 3] == 'X') {
 					return 'H';
@@ -77,8 +77,8 @@ public:
 		}
 
 		//check if AI won
-		for (int j = 0; j < game_board.size(); j++) {
-			for (int i = 0; i < game_board[0].size() - 3; i++) {
+		for (unsigned int j = 0; j < game_board.size(); j++) {
+			for (unsigned int i = 0; i < game_board[0].size() - 3; i++) {
 				if (game_board[j][i] == 'O' && game_board[j][i + 1] == 'O' &&
 					game_board[j][i + 2] == 'O' && game_board[j][i + 3] == 'O') {
 					return 'M';
@@ -86,8 +86,8 @@ public:
 			}
 		}
 		//vertical win
-		for (int j = 0; j < game_board[0].size(); j++) {
-			for (int i = 0; i < game_board.size() - 3; i++) {
+		for (unsigned int j = 0; j < game_board[0].size(); j++) {
+			for (unsigned int i = 0; i < game_board.size() - 3; i++) {
 				if (game_board[i][j] == 'O' && game_board[i + 1][j] == 'O' &&
 					game_board[i + 2][j] == 'O' && game_board[i + 3][j] == 'O') {
 					return 'M';
@@ -95,8 +95,8 @@ public:
 			}
 		}
 		//diagonal up win
-		for (int i = 3; i < game_board.size(); i++) {
-			for (int j = 0; j < game_board[0].size() - 3; j++) {
+		for (unsigned int i = 3; i < game_board.size(); i++) {
+			for (unsigned int j = 0; j < game_board[0].size() - 3; j++) {
 				if (game_board[i][j] == 'O' && game_board[i - 1][j + 1] == 'O' &&
 					game_board[i - 2][j + 2] == 'O' && game_board[i - 3][j + 3] == 'O') {
 					return 'M';
@@ -105,8 +105,8 @@ public:
 
 		}
 		//diagonal down win
-		for (int i = 3; i < game_board.size(); i++) {
-			for (int j = 3; j < game_board[0].size(); j++) {
+		for (unsigned int i = 3; i < game_board.size(); i++) {
+			for (unsigned int j = 3; j < game_board[0].size(); j++) {
 				if (game_board[i][j] == 'O' && game_board[i - 1][j - 1] == 'O' &&
 					game_board[i - 2][j - 2] == 'O' && game_board[i - 3][j - 3] == 'O') {
 					return 'M';
@@ -122,9 +122,9 @@ public:
 	int h_eval(char player);
 
 	Board() {
-		for (int i = 0; i < 6; i++) {
+		for (unsigned int i = 0; i < 6; i++) {
 			std::vector<char> buff;
-			for (int j = 0; j < 7; j++) {
+			for (unsigned int j = 0; j < 7; j++) {
 				buff.push_back('*');
 			}
 			game_board.push_back(buff);

@@ -1,11 +1,58 @@
 #include "game_board.h"
+#include "scolor.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 using namespace std;
 
 int main() {
+	/****Window Creation****/
+	GLFWwindow* window;
+	/* Initialize the library */
+	if (!glfwInit())
+		return -1;
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	/* Create a windowed mode window and its OpenGL context */
+	window = glfwCreateWindow(1600, 1000, "Connect 4", NULL, NULL);
+	if (!window){
+		puts(RED("Failed to initialize Window").c_str());
+		glfwTerminate();
+		return -1;
+	}
+	/* Make the window's context current */
+	glfwMakeContextCurrent(window);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		puts(RED("Failed to initialize GLAD").c_str());
+	}
+	/****End of Window Creation****/
 	srand((unsigned int)time(0));
 	Board* board = new Board();
 	std::vector<std::vector<int>> moves;
+
+
+
+	/****Main Loop, Called every frame****/
+	while (!glfwWindowShouldClose(window)){
+		glClearColor(0.208f, 0.659f, 0.902f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glfwPollEvents();
+
+
+
+
+
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+	}
+
+	glfwTerminate();
+	delete board;
+
+	return 0;
+	/* Text based game
+
 
 	int game_mode = -1;
 	if (game_mode != 0 && game_mode != 1) {
@@ -31,6 +78,6 @@ int main() {
 	board->print_board();
 	cout << "Winner: " << winner;
 
-	delete board;
-	return 0;
+
+	*/
 }
