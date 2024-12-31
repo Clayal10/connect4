@@ -17,7 +17,7 @@ int main() {
 	char winner;
 	if (game_mode == 0) {
 		do {
-			system("cls");
+			system("clear");
 			play_human(board, &moves);
 			board->print_board();
 			winner = board->find_winner();

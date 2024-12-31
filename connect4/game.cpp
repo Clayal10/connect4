@@ -30,7 +30,7 @@ void play_human(Board* board, std::vector<std::vector<int>>* moves) {
 		}
 		else {
 			//stuff for ai
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
+			selection_val = board->minimax(board->game_board, 10, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
 			move[0] = 2;
 			move[1] = selection;
 			moves->push_back(move);
