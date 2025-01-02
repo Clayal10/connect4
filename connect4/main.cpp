@@ -12,15 +12,17 @@ int main() {
 		cout << "Welcome to Connect 4!\nChoose Game Mode (0 Human v. Machine, 1 Machine v. Machine): ";
 		cin >> game_mode;
 	}
-	system("cls");
+	system("clear"); // linux
+	//system("cls"); // windows
 
 	char winner;
 	if (game_mode == 0) {
 		do {
-			system("cls");
+			system("clear");
 			play_human(board, &moves);
 			board->print_board();
 			winner = board->find_winner();
+			if(winner == 'T')break;
 		}while (winner == 'Z');
 	}
 	else {
@@ -29,7 +31,7 @@ int main() {
 	}
 
 	board->print_board();
-	cout << "Winner: " << winner;
+	cout << "Winner: " << winner << "\n";
 
 	delete board;
 	return 0;

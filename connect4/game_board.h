@@ -36,6 +36,14 @@ public:
 	char find_winner() {
 		//Returns the entity who won
 		//TODO Clean this up
+		int checker = 0;
+		for(int j=0; j<game_board.size(); j++){
+			for(int i=0; i<game_board[0].size(); i++){
+				if(game_board[j][i] == '*')
+					checker++;		
+			}
+		}
+		if(checker=0) return 'T';
 
 		//horizontal win
 		for (int j = 0; j < game_board.size(); j++) {
