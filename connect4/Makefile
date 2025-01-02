@@ -1,6 +1,6 @@
-CXXFLAGS = -g -Wall 
+CXXFLAGS = -g -Wall
 EXFLAG = -o play
-LDFLAGS = -lglfw -pthread -g 
+LDFLAGS = -lglfw -pthread -g
 
 
 all:
@@ -9,4 +9,3 @@ all:
 
 test:	all
 	./a.out
-

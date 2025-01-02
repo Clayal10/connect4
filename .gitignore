@@ -27,6 +27,7 @@
 *.exe
 *.out
 *.app
+play
 
 #visual studio things
 x64*

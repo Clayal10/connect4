@@ -4,7 +4,7 @@
 #define neg_inf -std::numeric_limits<int>::max()
 
 extern bool try_again = false;
-extern char up_next = 'H'; //start with human
+extern char up_next = 'M'; //start with machine
 
 
 
@@ -28,7 +28,7 @@ void play_human(Board* board, std::vector<std::vector<int>>* moves) {
 		}
 		else {
 			//stuff for ai
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
+			selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
 			move[0] = 2;
 			move[1] = selection;
 			moves->push_back(move);
@@ -116,7 +116,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 			}
 		}
 		//for each child, could be while loop
-		//for(unsigned unsigned int i=0; i<children_states.size(); i++){
+		//for(int i=0; i<7; i++){
 		while(child_num<7){
 			col = rand()%7;
 			child = child_board(game_board, col, player, true);
@@ -150,7 +150,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 		}else{
 			player = 'H';
 		}
-		//for(unsigned unsigned int i=0; i<children_states.size(); i++){
+		//for(int i=0; i<7; i++){
 		while(child_num<7){
 			col = rand()%7;
 			child = child_board(game_board, col, player, true);
@@ -164,7 +164,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 			child_num++;
 			if(eval < min_eval){
 				min_eval = eval;
-				selection = child_num;
+				selection = col;
 			}
 			if(eval < beta){
 				beta = eval;
@@ -179,107 +179,130 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 	
 }
 
+//h_eval serves the following purpose
+//	Uses a score to determine the best / worst moves instead of finding the end state of the game.
+//	This is due to connect4's complex nature as compared to other minimax type games.
+//	Input will be the player and the return will be the highest number
+//		This number indicates the longest string of X's or O's in a row,
+//		and the for loops already check for the board size
+//	Theorhetically, minimax will be able to tell if the next move will increase this score for itself or
+//	decrease this score for the player
+
 int Board::h_eval(char player){
-	//rearrange the if statments to be nested and add 1 point for each level or something like that.
-	int value=0;
-	/*The current setup is only rewarding very selfishly, need to block the opponent as well*/
+	int value;
+	int global_value = 0;
 	if(player == 'H'){
 		//horizontal right check
 		for(unsigned int j=0; j<game_board.size(); j++){
 			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j][i+1] != 'O' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
-					value++;
+					value=1;
 					if(game_board[j][i+1] == 'X' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[j][i+2] == 'X' && game_board[j][i+3] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[j][i+3] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//horizontal left check
 		for(unsigned int j=0; j<game_board.size(); j++){
 			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'X' && game_board[j][i-1] != 'O' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
-					value++;
+					value=1;
 					if(game_board[j][i-1] == 'X' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[j][i-2] == 'X' && game_board[j][i-3] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[j][i-3] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//vertical up check
 		for(unsigned int j=0; j<game_board[0].size(); j++){
 			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'X' && game_board[i-1][j] != 'O' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
-					value++;
+					value=1;
 					if(game_board[i-1][j] == 'X' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[i-2][j] == 'X' && game_board[i-3][j] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[i-3][j] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//vetical down check
 		for(unsigned int j=0; j<game_board[0].size(); j++){
 			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'X' && game_board[i+1][j] != 'O' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
-					value++;
+					value=1;
 					if(game_board[i+1][j] == 'X' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[i+2][j] == 'X' && game_board[i+3][j] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[i+3][j] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//diagonal up check
 		for(unsigned int j=3; j<game_board.size(); j++){
 			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i+1] != 'O' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
-					value++;
+					value=1;
 					if(game_board[j-1][i+1] == 'X' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[j-2][i+2] == 'X' && game_board[j-3][i+3] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[j-3][i+3] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
 		}
+		if(value > global_value){
+			global_value = value;
+		}
 		//diagonal down check
 		for(unsigned int j=3; j<game_board.size(); j++){
 			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i-1] != 'O' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
-					value++;
+					value=1;
 					if(game_board[j-1][i-1] == 'X' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
-						value+=2;
+						value=2;
 						if(game_board[j-2][i-2] == 'X' && game_board[j-3][i-3] != 'O') {
-							value+=3;
+							value=3;
 							if(game_board[j-3][i-3] == 'X'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
@@ -287,113 +310,131 @@ int Board::h_eval(char player){
 			}
 		}
 	
-		return value;
+		return global_value;
 		
 	}else{//same thing but with 'O' instead of 'X'
 		//horizontal right check
 		for(unsigned int j=0; j<game_board.size(); j++){
 			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j][i+1] != 'X' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
-					value++;
+					value=1;
 					if(game_board[j][i+1] == 'O' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[j][i+2] == 'O' && game_board[j][i+3] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[j][i+3] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//horizontal left check
 		for(unsigned int j=0; j<game_board.size(); j++){
 			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'O' && game_board[j][i-1] != 'X' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
-					value++;
+					value=1;
 					if(game_board[j][i-1] == 'O' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[j][i-2] == 'O' && game_board[j][i-3] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[j][i-3] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//vertical up check
 		for(unsigned int j=0; j<game_board[0].size(); j++){
 			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'O' && game_board[i-1][j] != 'X' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
-					value++;
+					value=1;
 					if(game_board[i-1][j] == 'O' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[i-2][j] == 'O' && game_board[i-3][j] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[i-3][j] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//vetical down check
 		for(unsigned int j=0; j<game_board[0].size(); j++){
 			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'O' && game_board[i+1][j] != 'X' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
-					value++;
+					value=1;
 					if(game_board[i+1][j] == 'O' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[i+2][j] == 'O' && game_board[i+3][j] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[i+3][j] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//diagonal up check
 		for(unsigned int j=3; j<game_board.size(); j++){
 			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i+1] != 'X' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
-					value++;
+					value=1;
 					if(game_board[j-1][i+1] == 'O' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[j-2][i+2] == 'O' && game_board[j-3][i+3] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[j-3][i+3] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
+		}
+		if(value > global_value){
+			global_value = value;
 		}
 		//diagonal down check
 		for(unsigned int j=3; j<game_board.size(); j++){
 			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i-1] != 'X' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
-					value++;
+					value=1;
 					if(game_board[j-1][i-1] == 'O' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
-						value+=2;
+						value=2;
 						if(game_board[j-2][i-2] == 'O' && game_board[j-3][i-3] != 'X') {
-							value+=3;
+							value=3;
 							if(game_board[j-3][i-3] == 'O'){
-								value+=4;
+								value=4;
 							}
 						}
 					}
 				}
 			}
 		}
+		if(value > global_value){
+			global_value = value;
+		}
 	
-		return value;
+		return global_value;
 	
 	}
 }
