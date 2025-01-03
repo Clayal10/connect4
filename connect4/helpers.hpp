@@ -5,7 +5,10 @@
 #include "scolor.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp> //TODO link in msvs
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 //Prototypes
 /****Defined in window_helpers.cpp****/
@@ -21,7 +24,7 @@ void init_helpers();
 void free_helpers();
 class gameobject{
 public:
-	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib;
+	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib, mvp_uniform;
 	int init();
 	void draw();
 };

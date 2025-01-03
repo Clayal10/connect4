@@ -58,6 +58,7 @@ int main() {
 
 		window_key_callback(window);
 	
+		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
 		for(gameobject* obj : objects){
 			obj->draw();
 		}
