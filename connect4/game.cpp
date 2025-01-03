@@ -191,7 +191,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 //	decrease this score for the player
 
 int Board::h_eval(char player){
-	int value;
+	int value = 0;
 	int global_value = 0;
 	if(player == 'H'){
 		//horizontal right check

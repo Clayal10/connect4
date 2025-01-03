@@ -1,5 +1,7 @@
 #include "game_board.h"
 
+#define CLEAR "cls"
+//#define CLEARN "clear"
 using namespace std;
 
 int main() {
@@ -12,13 +14,11 @@ int main() {
 		cout << "Welcome to Connect 4!\nChoose Game Mode (0 Human v. Machine, 1 Machine v. Machine): ";
 		cin >> game_mode;
 	}
-	system("clear"); // linux
-	//system("cls"); // windows
-
+	system(CLEAR);
 	char winner;
 	if (game_mode == 0) {
 		do {
-			system("clear");
+			system(CLEAR);
 			play_human(board, &moves);
 			board->print_board();
 			winner = board->find_winner();
