@@ -1,13 +1,11 @@
 #include<fstream>
-#include "game_board.h"
+#include "game_board.hpp"
+
 #define inf std::numeric_limits<int>::max()
 #define neg_inf -std::numeric_limits<int>::max()
 
-extern bool try_again = false;
-extern char up_next = 'M'; //start with machine
-
-
-
+bool try_again = false;
+char up_next = 'M'; //start with machine
 
 
 void play_human(Board* board, std::vector<std::vector<int>>* moves) {

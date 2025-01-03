@@ -1,9 +1,12 @@
-#include "game_board.h"
+#include "game_board.hpp"
+#include "helpers.hpp"
 #include "scolor.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 using namespace std;
+
+std::vector<gameobject*> objects;
 
 int main() {
 	/****Window Creation****/
@@ -15,7 +18,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(1600, 1000, "Connect 4", NULL, NULL);
+	window = glfwCreateWindow(1000, 800, "Connect 4", NULL, NULL);
 	if (!window){
 		puts(RED("Failed to initialize Window").c_str());
 		glfwTerminate();
@@ -25,8 +28,23 @@ int main() {
 	glfwMakeContextCurrent(window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		puts(RED("Failed to initialize GLAD").c_str());
+		return -1;
 	}
+	glViewport(0, 0, 1000, 800);
+	/*Callbacks*/
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 	/****End of Window Creation****/
+	/****Object Creation****/
+
+	gameobject test_object;
+	objects.push_back(&test_object);
+	
+	for(gameobject* obj : objects){
+		obj->init();
+	}
+
+	/***End of Object Creation****/	
 	srand((unsigned int)time(0));
 	Board* board = new Board();
 	std::vector<std::vector<int>> moves;
@@ -39,8 +57,11 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
 
-
-
+		window_key_callback(window);
+	
+		for(gameobject* obj : objects){
+			obj->draw();
+		}
 
 
 		/* Swap front and back buffers */
@@ -79,7 +100,9 @@ int main() {
 
 	board->print_board();
 	cout << "Winner: " << winner << "\n";
-
-
+	
+	delete board;
+	return 0;
+	
 	*/
 }
