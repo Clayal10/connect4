@@ -1,13 +1,14 @@
 #include "helpers.hpp"
 
+
+
 //all objects are initialized right before the main loop
 int gameobject::init(){
-	//std::vector<glm::vec2> locations;
 	float vertices[] = {
-		0.2f, 0.2f, 0.0f, 	//top right
-		0.2f, -0.2f, 0.0f,	//bottom right 
-		-0.2f, -0.2f, 0.0f,	//bottom left
-		-0.2f, 0.2f, 0.0f,	//top left
+		0.1f, 0.1f, 0.0f, 	//top right
+		0.1f, -0.1f, 0.0f,	//bottom right 
+		-0.1f, -0.1f, 0.0f,	//bottom left
+		-0.1f, 0.1f, 0.0f,	//top left
 	};
 
 	unsigned int indicies[] = {
@@ -43,28 +44,27 @@ int gameobject::init(){
 //Called in the main loop
 void gameobject::draw(){
 	
-	glEnableVertexAttribArray(vertex_attrib);
-	glVertexAttribPointer(vertex_attrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 	/****Movement****/
-	glm::mat4 transform = glm::mat4(1.0f);
-	transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0)); // rotate around z
 	
 	glUseProgram(shader_program);
-	unsigned int transformLoc = glGetUniformLocation(shader_program, "transform");
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
-
-	/*	
-	int size;
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	
-
-	glUniformMatrix4fv(mvp_uniform, 1, 0, glm::value_ptr(vp));
-	
-	glDrawElementsInstanced(GL_TRIANGLES, size / sizeof(uint16_t), GL_UNSIGNED_INT, 0, 100);	
-	*/
+	glEnableVertexAttribArray(vertex_attrib);
+	glVertexAttribPointer(vertex_attrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	/****adding more instances****/
+	std::vector<glm::mat4> models;
+	models.reserve(locations.size());
+	for(glm::vec3 l : locations){
+		glm::mat4 new_model = glm::mat4(1.0f);
+		new_model = translate(new_model, l);
+		models.push_back(new_model);
+		glGetUniformLocation(shader_program, "model");
+		glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, &new_model[0][0]);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	
+
+
+
 }

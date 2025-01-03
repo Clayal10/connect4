@@ -5,6 +5,29 @@
 using namespace std;
 
 std::vector<gameobject*> objects;
+std::mutex grand_mutex;
+
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+
+gameobject coin;
+int coin_amount;
+
+void game_key_callback(GLFWwindow *window){
+	//TODO Limit to 1 per press OR TODO mouse implimentation
+	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
+		coin.locations.push_back(glm::vec3(0.9f, 0.9f, 0.0f));
+	}
+	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && coin_amount != -1){
+		puts(BLUE("PRESSED").c_str());
+		coin.locations[coin_amount].x -= 0.1f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && coin_amount != -1){
+		puts(BLUE("PRESSED").c_str());
+		coin.locations[coin_amount].x += 0.1f;
+	}
+}
+
 
 int main() {
 	init_helpers();
@@ -29,15 +52,14 @@ int main() {
 		puts(RED("Failed to initialize GLAD").c_str());
 		return -1;
 	}
-	glViewport(0, 0, 1000, 800);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	/*Callbacks*/
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	/****End of Window Creation****/
 	/****Object Creation****/
 
-	gameobject test_object;
-	objects.push_back(&test_object);
+	objects.push_back(&coin);
 	
 	for(gameobject* obj : objects){
 		obj->init();
@@ -52,12 +74,16 @@ int main() {
 
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
-		glClearColor(0.208f, 0.659f, 0.902f, 1.0f);
+		coin_amount = coin.locations.size()-1;
+	
+		glClearColor(0.025f, 0.364f, 0.411f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
-
+		
+		/****Callbacks****/
 		window_key_callback(window);
-	
+		game_key_callback(window);
+
 		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
 		for(gameobject* obj : objects){
 			obj->draw();
@@ -73,37 +99,4 @@ int main() {
 	free_helpers();
 
 	return 0;
-	/* Text based game
-
-
-	int game_mode = -1;
-	if (game_mode != 0 && game_mode != 1) {
-		cout << "Welcome to Connect 4!\nChoose Game Mode (0 Human v. Machine, 1 Machine v. Machine): ";
-		cin >> game_mode;
-	}
-	system("clear"); // linux
-	//system("cls"); // windows
-
-	char winner;
-	if (game_mode == 0) {
-		do {
-			system("clear");
-			play_human(board, &moves);
-			board->print_board();
-			winner = board->find_winner();
-			if(winner == 'T')break;
-		}while (winner == 'Z');
-	}
-	else {
-		play_machine(board, &moves);
-		winner = board->find_winner();
-	}
-
-	board->print_board();
-	cout << "Winner: " << winner << "\n";
-	
-	delete board;
-	return 0;
-	
-	*/
 }
