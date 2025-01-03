@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "helpers.hpp"
 #define GBLEN 100000
 char* buffer;
