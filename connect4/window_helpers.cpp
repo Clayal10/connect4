@@ -1,7 +1,14 @@
 #include "helpers.hpp"
 
 #define GBLEN 100000
-char* general_buffer;
+char* buffer;
+
+void init_helpers() {
+	buffer = (char*)malloc(GBLEN);
+}
+void free_helpers() {
+	free(buffer);
+}
 
 
 //Function Definitions
@@ -19,16 +26,19 @@ void window_key_callback(GLFWwindow *window){
 //When function is called, ensure to include directory in relation to /connect4/connect4/
 /****Based on make_shader() function from Dr. S. Seth Long****/
 GLuint make_shader(const char* filename, GLenum shaderType){
-	printf("%s\n", filename);
 	
-	FILE* fd = fopen(filename, "r");
-	if (fd == 0) {
+	FILE* fd;
+	errno_t err = fopen_s(&fd, filename, "r");
+	if (err != 0) {
              printf("File not found:  %s\n", filename);
              return 0;
 	}
-        size_t readlen = fread(general_buffer, 1, GBLEN, fd);
-        fclose(fd);
-        if (readlen == GBLEN) {
+	
+	//char* buffer;
+    size_t readlen = fread(buffer, 1, GBLEN, fd);
+	fclose(fd);
+    
+    if (readlen == GBLEN) {
   		printf(RED("Buffer Length of %d bytes Inadequate for File %s\n").c_str(), GBLEN, filename);
 		return 0;
 	}
@@ -36,15 +46,15 @@ GLuint make_shader(const char* filename, GLenum shaderType){
              puts(RED("File read problem, read 0 bytes").c_str());
              return 0;
         }
-	general_buffer[readlen] = 0;
+	buffer[readlen] = 0;
    	printf(DGREEN("Read shader in file %s (%d bytes)\n").c_str(), filename, readlen);
-        puts(general_buffer);
+    puts(buffer);
 	
 	unsigned int shader_reference = glCreateShader(shaderType);
-	glShaderSource(shader_reference, 1, (const char**)&general_buffer, 0);
+	glShaderSource(shader_reference, 1, (const char**)&buffer, 0);
 	glCompileShader(shader_reference);
-	glGetShaderInfoLog(shader_reference, GBLEN, NULL, general_buffer);
-	puts(general_buffer);
+	glGetShaderInfoLog(shader_reference, GBLEN, NULL, buffer);
+	puts(buffer);
 	GLint compile_status;
 	glGetShaderiv(shader_reference, GL_COMPILE_STATUS, &compile_status);
 	if(compile_status){
@@ -52,6 +62,7 @@ GLuint make_shader(const char* filename, GLenum shaderType){
 		return shader_reference;
 	}
 	puts(RED("Compile Failed\n").c_str());
+
 	return 0;
 
 }
@@ -68,9 +79,10 @@ GLuint make_program(const char* vertex_file, const char* fragment_file){
 	
 	GLint link_status;
 	glGetProgramiv(program, GL_LINK_STATUS, &link_status);
+	
 	if(!link_status){
-		glGetProgramInfoLog(program, GBLEN, NULL, general_buffer);
-		puts(general_buffer);
+		glGetProgramInfoLog(program, GBLEN, NULL, buffer);
+		puts(buffer);
 		puts(RED("Link Failed").c_str());
 		return 0;
 	}

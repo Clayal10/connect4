@@ -17,6 +17,8 @@ GLuint make_program(const char* vertex_file, const char* fragment_file);
 
 //Objects
 /****Defined in game_helpers.cpp****/
+void init_helpers();
+void free_helpers();
 class gameobject{
 public:
 	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib;

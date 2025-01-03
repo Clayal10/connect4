@@ -1,14 +1,13 @@
 #include "game_board.hpp"
 #include "helpers.hpp"
 #include "scolor.hpp"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 using namespace std;
 
 std::vector<gameobject*> objects;
 
 int main() {
+	init_helpers();
 	/****Window Creation****/
 	GLFWwindow* window;
 	/* Initialize the library */
@@ -70,6 +69,7 @@ int main() {
 
 	glfwTerminate();
 	delete board;
+	free_helpers();
 
 	return 0;
 	/* Text based game
