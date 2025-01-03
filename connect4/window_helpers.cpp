@@ -1,5 +1,4 @@
 #include "helpers.hpp"
-
 #define GBLEN 100000
 char* buffer;
 
@@ -27,18 +26,19 @@ void window_key_callback(GLFWwindow *window){
 /****Based on make_shader() function from Dr. S. Seth Long****/
 GLuint make_shader(const char* filename, GLenum shaderType){
 	
-	FILE* fd;
-	errno_t err = fopen_s(&fd, filename, "r");
-	if (err != 0) {
-             printf("File not found:  %s\n", filename);
-             return 0;
+	FILE* fd = fopen(filename, "r"); // linux
+	//int err = fopen_s(&fd, filename, "r"); //windows
+	//if (err != 0) {
+        if(!fd){
+   		printf("File not found:  %s\n", filename);
+        	return 0;
 	}
 	
 	//char* buffer;
-    size_t readlen = fread(buffer, 1, GBLEN, fd);
+	size_t readlen = fread(buffer, 1, GBLEN, fd);
 	fclose(fd);
     
-    if (readlen == GBLEN) {
+	if (readlen == GBLEN) {
   		printf(RED("Buffer Length of %d bytes Inadequate for File %s\n").c_str(), GBLEN, filename);
 		return 0;
 	}
@@ -48,7 +48,7 @@ GLuint make_shader(const char* filename, GLenum shaderType){
         }
 	buffer[readlen] = 0;
    	printf(DGREEN("Read shader in file %s (%d bytes)\n").c_str(), filename, readlen);
-    puts(buffer);
+	puts(buffer);
 	
 	unsigned int shader_reference = glCreateShader(shaderType);
 	glShaderSource(shader_reference, 1, (const char**)&buffer, 0);
