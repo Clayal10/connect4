@@ -37,6 +37,7 @@ int gameobject::init(){
 	//Get attributes for shaders here
 	vertex_attrib = glGetAttribLocation(shader_program, "in_vertex");
 	mvp_uniform = glGetUniformLocation(shader_program, "mvp");
+	vertex_color = glGetUniformLocation(shader_program, "v_color");
 
 	return 0;
 };
@@ -48,6 +49,8 @@ void gameobject::draw(){
 	/****Movement****/
 	
 	glUseProgram(shader_program);
+
+	glUniform4f(vertex_color, red, green, blue, 1.0f);
 	
 	glEnableVertexAttribArray(vertex_attrib);
 	glVertexAttribPointer(vertex_attrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -64,7 +67,10 @@ void gameobject::draw(){
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 	
+}
 
-
-
+void gameobject::set_color(float r, float g, float b) {
+	red = r;
+	green = g;
+	blue = b;
 }

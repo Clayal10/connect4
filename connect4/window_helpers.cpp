@@ -11,18 +11,12 @@ void free_helpers() {
 	free(buffer);
 }
 
-
 //Function Definitions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, width, height);
 	printf("Window resized to %dpx by %dpx\n", width, height);
 }
-void window_key_callback(GLFWwindow *window){
-	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
-		puts(RED("Window Closed by User").c_str());
-		glfwSetWindowShouldClose(window, true);
-	}
-}
+
 
 //When function is called, ensure to include directory in relation to /connect4/connect4/
 /****Based on make_shader() function from Dr. S. Seth Long****/

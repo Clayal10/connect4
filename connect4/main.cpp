@@ -10,24 +10,10 @@ std::mutex grand_mutex;
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
 
-gameobject coin;
+gameobject coin; // user coin
+gameobject auto_coin; // machine coin
+Board* board = new Board();
 int coin_amount;
-
-void game_key_callback(GLFWwindow *window){
-	//TODO Limit to 1 per press OR TODO mouse implimentation
-	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
-		coin.locations.push_back(glm::vec3(0.9f, 0.9f, 0.0f));
-	}
-	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && coin_amount != -1){
-		puts(BLUE("PRESSED").c_str());
-		coin.locations[coin_amount].x -= 0.1f;
-	}
-	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && coin_amount != -1){
-		puts(BLUE("PRESSED").c_str());
-		coin.locations[coin_amount].x += 0.1f;
-	}
-}
-
 
 int main() {
 	init_helpers();
@@ -55,11 +41,15 @@ int main() {
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	/*Callbacks*/
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, game_key_callback);
 
 	/****End of Window Creation****/
 	/****Object Creation****/
-
+	coin.set_color(1.0f, 0.0f, 0.0f);
+	auto_coin.set_color(1.0f, 1.0f, 0.0f);
+	//coin.locations.push_back(glm::vec3(-0.9f, -0.9f, 0.0f));
 	objects.push_back(&coin);
+	objects.push_back(&auto_coin);
 	
 	for(gameobject* obj : objects){
 		obj->init();
@@ -67,23 +57,18 @@ int main() {
 
 	/***End of Object Creation****/	
 	srand((unsigned int)time(0));
-	Board* board = new Board();
-	std::vector<std::vector<int>> moves;
-
 
 
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
 		coin_amount = coin.locations.size()-1;
 	
-		glClearColor(0.025f, 0.364f, 0.411f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.541f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
-		
-		/****Callbacks****/
-		window_key_callback(window);
-		game_key_callback(window);
 
+		
+		
 		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
 		for(gameobject* obj : objects){
 			obj->draw();
@@ -99,4 +84,36 @@ int main() {
 	free_helpers();
 
 	return 0;
+}
+
+void game_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { // Window Handling
+		puts(RED("Window Closed by User").c_str());
+		glfwSetWindowShouldClose(window, true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { // Creation
+		coin.locations.push_back(glm::vec3(0.9f, 0.9f, 0.0f));
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && coin_amount != -1) { // Move Left
+		puts(BLUE("LEFT").c_str());
+		float x_loc = coin.locations[coin_amount].x;
+		if (x_loc > -0.9f) {
+			coin.locations[coin_amount].x -= 0.2f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && coin_amount != -1) { // Move Right
+		puts(BLUE("RIGHT").c_str());
+		float x_loc = coin.locations[coin_amount].x;
+		if (x_loc < 0.9f) {
+			coin.locations[coin_amount].x += 0.2f;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) { // Select
+		play_human(board, &coin, 'H');
+		update_board_visuals(board->game_board, &coin);
+		play_human(board, &auto_coin, 'M');
+		update_board_visuals(board->game_board, &auto_coin);
+
+	}
 }

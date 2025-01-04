@@ -7,29 +7,55 @@
 bool try_again = false;
 char up_next = 'M'; //start with machine
 
+// Helper functions
+int unit_conversion(float visual_location) {
+	int buffer = (visual_location * 5) + 4.5;
+	printf("converted to %d\n", buffer);
+	return buffer;
+}
+float h_conversion(int idx_location) {
+	float buffer = 0;
+	switch(idx_location){
+		case 0: buffer = -0.9; break;
+		case 1: buffer = -0.7; break;
+		case 2: buffer = -0.5; break;
+		case 3: buffer = -0.3; break;
+		case 4: buffer = -0.1; break;
+		case 5: buffer = 0.1; break;
+		case 6: buffer = 0.3; break;
+	}
+	return buffer;
+}
+float v_conversion(int idx_location) {
+	float buffer = 0;
+	switch (idx_location) {
+		case 0: buffer = 0.1; break;
+		case 1: buffer = -0.1; break;
+		case 2: buffer = -0.3; break;
+		case 3: buffer = -0.5; break;
+		case 4: buffer = -0.7; break;
+		case 5: buffer = -0.9; break;
+	}
+	return buffer;
+}
 
-void play_human(Board* board, std::vector<std::vector<int>>* moves) {
+
+void play_human(Board* board, gameobject* user_coin, char next) {
 	//print the board for the first time
 	board->print_board();
 
-	std::vector<int> move(2);
-	int selection;
+	int selection = 0;
 	int selection_val;
 	do {
 		//just do this section every other time (the other time will be AI)
-		if (up_next == 'H') {
-			std::cout << "Pick a Column for your move: ";
-			std::cin >> selection;
-			move[0] = 1;
-			move[1] = selection;
-			moves->push_back(move);
+		if (next == 'H') {
+			//most left position is .1 and goes up by .2
+			//on a domain of -1.0, 1.0
+			selection = unit_conversion(user_coin->locations[user_coin->locations.size() - 1].x); // very statically based off of coin size
 		}
 		else {
 			//stuff for ai
 			selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-			move[0] = 2;
-			move[1] = selection;
-			moves->push_back(move);
 		}
 
 		board->update_board(selection, up_next, false); // doesn't update if invalid placement
@@ -41,26 +67,19 @@ void play_human(Board* board, std::vector<std::vector<int>>* moves) {
 	else
 		up_next = 'H';
 }
-
-void play_machine(Board* board, std::vector<std::vector<int>>* moves) {
+//NOT READY
+void play_machine(Board* board) {
 	//AI vs AI
 	char winner = 'Z';//H is first ai, M is second
 	int selection;
 	int selection_val;
-	std::vector<int> move(2);
 	while (winner == 'Z') { //This will just do everything in one go
 		if (up_next == 'H') {
 			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'H', selection, true);//dont think i actually need this value
-			move[0] = 1;
-			move[1] = selection;
-			moves->push_back(move);
 		}
 		else {
 			//stuff for ai
 			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-			move[0] = 2;
-			move[1] = selection;
-			moves->push_back(move);
 		}
 
 		board->update_board(selection, up_next, false);
@@ -87,8 +106,6 @@ void play_machine(Board* board, std::vector<std::vector<int>>* moves) {
 
 	std::cout << "Winner is: " << ai_winner << std::endl;
 
-	//board->reset_board();
-	//moves->clear();
 
 }
 
@@ -187,7 +204,7 @@ int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alp
 //	decrease this score for the player
 
 int Board::h_eval(char player){
-	int value;
+	int value = 0;
 	int global_value = 0;
 	if(player == 'H'){
 		//horizontal right check
@@ -460,6 +477,18 @@ void Board::update_board(int col, char player, bool in_minimax) {
 		}
 	}
 }
+
+void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* coin) { // can work with either coin type
+	coin->locations.clear();
+	for (int i = 0; i < game_board.size(); i++) {
+		for (int j = 0; j < game_board[0].size(); j++) {
+			if (game_board[i][j] != '*') {
+				coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+			}
+		}
+	}
+}
+
 
 std::vector<std::vector<char>> Board::child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax) {
 	for (unsigned int i = 0; i < game_board_child.size(); i++) {

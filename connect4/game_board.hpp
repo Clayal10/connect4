@@ -6,6 +6,8 @@
 #include<ctime>
 #include<cmath>
 
+#include "helpers.hpp"
+
 //TODO
 //	-Clean up find_winner()
 //	-Make it a 2d game!
@@ -43,7 +45,7 @@ public:
 					checker++;		
 			}
 		}
-		if(checker=0) return 'T';
+		if(checker==0) return 'T';
 
 		//horizontal win
 		for (unsigned int j = 0; j < game_board.size(); j++) {
@@ -140,5 +142,5 @@ public:
 	}
 };
 
-void play_human(Board* board, std::vector<std::vector<int>>* moves);
-void play_machine(Board* board, std::vector<std::vector<int>>* moves);
+void play_human(Board* board, gameobject* user_coin, char next);
+void play_machine(Board* board);
