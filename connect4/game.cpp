@@ -1,98 +1,71 @@
 #include<fstream>
-#include "game_board.h"
+#include "game_board.hpp"
+
 #define inf std::numeric_limits<int>::max()
 #define neg_inf -std::numeric_limits<int>::max()
 
-extern bool try_again = false;
-extern char up_next = 'M'; //start with machine
+bool try_again = false;
+char up_next = 'M'; //start with machine
 
-//TODO
-//	-Clean up minimax
-//		-Don't make it too intensive but maybe make a proper minimax function.
-//		 This can be difficult since connect 4 has so many possibilities but we will try!
-
-
-void play_human(Board* board, std::vector<std::vector<int>>* moves) {
-	//print the board for the first time
-	board->print_board();
-
-	std::vector<int> move(2);
-	int selection;
-	int selection_val;
-	do {
-		//just do this section every other time (the other time will be AI)
-		if (up_next == 'H') {
-			std::cout << "Pick a Column for your move: ";
-			std::cin >> selection;
-			move[0] = 1;
-			move[1] = selection;
-			moves->push_back(move);
-		}
-		else {
-			//stuff for ai
-			selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-			move[0] = 2;
-			move[1] = selection;
-			moves->push_back(move);
-		}
-
-		board->update_board(selection, up_next, false); // doesn't update if invalid placement
-	} while (try_again);
-
-	//swap who goes next
-	if (up_next == 'H')
-		up_next = 'M';
-	else
-		up_next = 'H';
+// Helper functions
+int unit_conversion(float visual_location) {
+	int buffer = (visual_location * 5) + 4.5;
+	printf("converted to %d\n", buffer);
+	return buffer;
 }
 
-void play_machine(Board* board, std::vector<std::vector<int>>* moves) {
-	//AI vs AI
-	char winner = 'Z';//H is first ai, M is second
-	int selection;
-	int selection_val;
-	std::vector<int> move(2);
-	while (winner == 'Z') { //This will just do everything in one go
-		if (up_next == 'H') {
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'H', selection, true);//dont think i actually need this value
-			move[0] = 1;
-			move[1] = selection;
-			moves->push_back(move);
-		}
-		else {
-			//stuff for ai
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-			move[0] = 2;
-			move[1] = selection;
-			moves->push_back(move);
-		}
-
-		board->update_board(selection, up_next, false);
-		if (try_again) {
-			continue;
-		}
-
-		//swap who goes next
-		if (up_next == 'H')
-			up_next = 'M';
-		else
-			up_next = 'H';
-
-		winner = board->find_winner();
-
+float h_conversion(int idx_location) {
+	return (idx_location - 4.5)/5.0;
+}
+//This is very silly
+//For connect 4, you'd think of 0, 0 as bottom left, but 0,0 on a 
+//	2d vector is top left. I'm not smart enough to make the conversion
+float v_conversion(int idx_location) {
+	float buffer = 0;
+	switch (idx_location) {
+		case 0: buffer = 0.1; break;
+		case 1: buffer = -0.1; break;
+		case 2: buffer = -0.3; break;
+		case 3: buffer = -0.5; break;
+		case 4: buffer = -0.7; break;
+		case 5: buffer = -0.9; break;
 	}
-	int ai_winner;
-	if (winner == 'H') {
-		ai_winner = 1;
+	return buffer;
+}
+
+
+void play_human(Board* board, gameobject* user_coin, char player) {
+	//print the board for the first time
+
+	int selection = 0;
+	int selection_val;
+	if (player == 'H') {
+		//most left position is .1 and goes up by .2
+		//on a domain of -1.0, 1.0
+		selection = unit_conversion(user_coin->locations[user_coin->locations.size() - 1].x); // very statically based off of coin size
 	}
 	else {
-		ai_winner = 2;
+		//stuff for ai
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
 	}
 
-	std::cout << "Winner is: " << ai_winner << std::endl;
+	board->update_board(selection, player, false); // doesn't update if invalid placement
+	board->print_board();
+}
 
-	//board->reset_board();
-	//moves->clear();
+void play_machine(Board* board, char player) {
+	//AI vs AI
+	int selection = 0;
+	int selection_val;
+	if (player == 'H') {
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'H', selection, true);//dont think i actually need this value
+	}
+	else {
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
+	}
+
+	board->update_board(selection, player, false);
+	board->print_board();
 
 }
 
@@ -195,8 +168,8 @@ int Board::h_eval(char player){
 	int global_value = 0;
 	if(player == 'H'){
 		//horizontal right check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j][i+1] != 'O' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
 					value=1;
 					if(game_board[j][i+1] == 'X' && game_board[j][i+2] != 'O' && game_board[j][i+3] != 'O'){
@@ -215,8 +188,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//horizontal left check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size(); i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'X' && game_board[j][i-1] != 'O' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
 					value=1;
 					if(game_board[j][i-1] == 'X' && game_board[j][i-2] != 'O' && game_board[j][i-3] != 'O'){
@@ -235,8 +208,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//vertical up check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=3; i<game_board.size(); i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'X' && game_board[i-1][j] != 'O' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
 					value=1;
 					if(game_board[i-1][j] == 'X' && game_board[i-2][j] != 'O' && game_board[i-3][j] != 'O'){
@@ -255,8 +228,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//vetical down check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=0; i<game_board.size()-3; i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'X' && game_board[i+1][j] != 'O' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
 					value=1;
 					if(game_board[i+1][j] == 'X' && game_board[i+2][j] != 'O' && game_board[i+3][j] != 'O'){
@@ -275,8 +248,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//diagonal up check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i+1] != 'O' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
 					value=1;
 					if(game_board[j-1][i+1] == 'X' && game_board[j-2][i+2] != 'O' && game_board[j-3][i+3] != 'O'){
@@ -295,8 +268,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//diagonal down check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'X' && game_board[j-1][i-1] != 'O' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
 					value=1;
 					if(game_board[j-1][i-1] == 'X' && game_board[j-2][i-2] != 'O' && game_board[j-3][i-3] != 'O'){
@@ -316,8 +289,8 @@ int Board::h_eval(char player){
 		
 	}else{//same thing but with 'O' instead of 'X'
 		//horizontal right check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j][i+1] != 'X' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
 					value=1;
 					if(game_board[j][i+1] == 'O' && game_board[j][i+2] != 'X' && game_board[j][i+3] != 'X'){
@@ -336,8 +309,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//horizontal left check
-		for(int j=0; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size(); i++){
+		for(unsigned int j=0; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size(); i++){
 				if(game_board[j][i] == 'O' && game_board[j][i-1] != 'X' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
 					value=1;
 					if(game_board[j][i-1] == 'O' && game_board[j][i-2] != 'X' && game_board[j][i-3] != 'X'){
@@ -356,8 +329,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//vertical up check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=3; i<game_board.size(); i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=3; i<game_board.size(); i++){
 				if(game_board[i][j] == 'O' && game_board[i-1][j] != 'X' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
 					value=1;
 					if(game_board[i-1][j] == 'O' && game_board[i-2][j] != 'X' && game_board[i-3][j] != 'X'){
@@ -376,8 +349,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//vetical down check
-		for(int j=0; j<game_board[0].size(); j++){
-			for(int i=0; i<game_board.size()-3; i++){
+		for(unsigned int j=0; j<game_board[0].size(); j++){
+			for(unsigned int i=0; i<game_board.size()-3; i++){
 				if(game_board[i][j] == 'O' && game_board[i+1][j] != 'X' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
 					value=1;
 					if(game_board[i+1][j] == 'O' && game_board[i+2][j] != 'X' && game_board[i+3][j] != 'X'){
@@ -396,8 +369,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//diagonal up check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=0; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=0; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i+1] != 'X' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
 					value=1;
 					if(game_board[j-1][i+1] == 'O' && game_board[j-2][i+2] != 'X' && game_board[j-3][i+3] != 'X'){
@@ -416,8 +389,8 @@ int Board::h_eval(char player){
 			global_value = value;
 		}
 		//diagonal down check
-		for(int j=3; j<game_board.size(); j++){
-			for(int i=3; i<game_board[0].size()-3; i++){
+		for(unsigned int j=3; j<game_board.size(); j++){
+			for(unsigned int i=3; i<game_board[0].size()-3; i++){
 				if(game_board[j][i] == 'O' && game_board[j-1][i-1] != 'X' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
 					value=1;
 					if(game_board[j-1][i-1] == 'O' && game_board[j-2][i-2] != 'X' && game_board[j-3][i-3] != 'X'){
@@ -442,7 +415,7 @@ int Board::h_eval(char player){
 }
 
 void Board::update_board(int col, char player, bool in_minimax) {
-	for (int i = 0; i < game_board.size(); i++) {
+	for (unsigned int i = 0; i < game_board.size(); i++) {
 		if (game_board[i][col] == '*') {
 			if (i == 5 || game_board[i + 1][col] != '*') {
 				if (player == 'H') {
@@ -465,8 +438,30 @@ void Board::update_board(int col, char player, bool in_minimax) {
 	}
 }
 
+void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* current_coin, char player) { // can work with either coin type
+	current_coin->locations.clear();
+	for (int i = 0; i < game_board.size(); i++) {
+		for (int j = 0; j < game_board[0].size(); j++) {
+			if (game_board[i][j] == 'X' && player == 'H') {
+				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+			}
+			else if (game_board[i][j] == 'O' && player == 'M') {
+				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+			}
+		}
+	}
+}
+
+void Board::fill_background(gameobject* blank) {
+	for (int i = 0; i < game_board.size(); i++) {
+		for(int j=0; j<game_board[0].size(); j++){
+			blank->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+		}
+	}
+}
+
 std::vector<std::vector<char>> Board::child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax) {
-	for (int i = 0; i < game_board_child.size(); i++) {
+	for (unsigned int i = 0; i < game_board_child.size(); i++) {
 		if (game_board_child[i][col] == '*') {
 			if (i == 5 || game_board_child[i + 1][col] != '*') {
 				if (player == 'H') {
