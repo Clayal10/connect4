@@ -130,6 +130,7 @@ public:
 
 	int minimax(std::vector<std::vector<char>> game_board, int depth, int alpha, int beta, bool maximizing_player, char player, int& selection, bool first_time);
 	int h_eval(char player);
+	void fill_background(gameobject* blank);
 
 	Board() {
 		for (unsigned int i = 0; i < 6; i++) {
@@ -143,4 +144,4 @@ public:
 };
 
 void play_human(Board* board, gameobject* user_coin, char next);
-void play_machine(Board* board);
+void play_machine(Board* board, char player);

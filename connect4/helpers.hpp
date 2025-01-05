@@ -12,7 +12,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-
 //Prototypes
 /****Defined in window_helpers.cpp****/
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -23,10 +22,12 @@ GLuint make_program(const char* vertex_file, const char* fragment_file);
 /****Defined in main****/
 void game_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+
 //Objects
 /****Defined in game_helpers.cpp****/
 void init_helpers();
 void free_helpers();
+
 class gameobject{
 public:
 	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib, mvp_uniform, vertex_color;
@@ -38,7 +39,7 @@ public:
 };
 
 /****Defined in game.cpp****/
-void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* coin);
+void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* coin, char player);
 
 
 

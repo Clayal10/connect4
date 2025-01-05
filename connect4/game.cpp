@@ -13,19 +13,13 @@ int unit_conversion(float visual_location) {
 	printf("converted to %d\n", buffer);
 	return buffer;
 }
+
 float h_conversion(int idx_location) {
-	float buffer = 0;
-	switch(idx_location){
-		case 0: buffer = -0.9; break;
-		case 1: buffer = -0.7; break;
-		case 2: buffer = -0.5; break;
-		case 3: buffer = -0.3; break;
-		case 4: buffer = -0.1; break;
-		case 5: buffer = 0.1; break;
-		case 6: buffer = 0.3; break;
-	}
-	return buffer;
+	return (idx_location - 4.5)/5.0;
 }
+//This is very silly
+//For connect 4, you'd think of 0, 0 as bottom left, but 0,0 on a 
+//	2d vector is top left. I'm not smart enough to make the conversion
 float v_conversion(int idx_location) {
 	float buffer = 0;
 	switch (idx_location) {
@@ -40,72 +34,38 @@ float v_conversion(int idx_location) {
 }
 
 
-void play_human(Board* board, gameobject* user_coin, char next) {
+void play_human(Board* board, gameobject* user_coin, char player) {
 	//print the board for the first time
-	board->print_board();
 
 	int selection = 0;
 	int selection_val;
-	do {
-		//just do this section every other time (the other time will be AI)
-		if (next == 'H') {
-			//most left position is .1 and goes up by .2
-			//on a domain of -1.0, 1.0
-			selection = unit_conversion(user_coin->locations[user_coin->locations.size() - 1].x); // very statically based off of coin size
-		}
-		else {
-			//stuff for ai
-			selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-		}
-
-		board->update_board(selection, up_next, false); // doesn't update if invalid placement
-	} while (try_again);
-
-	//swap who goes next
-	if (up_next == 'H')
-		up_next = 'M';
-	else
-		up_next = 'H';
-}
-//NOT READY
-void play_machine(Board* board) {
-	//AI vs AI
-	char winner = 'Z';//H is first ai, M is second
-	int selection;
-	int selection_val;
-	while (winner == 'Z') { //This will just do everything in one go
-		if (up_next == 'H') {
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'H', selection, true);//dont think i actually need this value
-		}
-		else {
-			//stuff for ai
-			selection_val = board->minimax(board->game_board, 5, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
-		}
-
-		board->update_board(selection, up_next, false);
-		if (try_again) {
-			continue;
-		}
-
-		//swap who goes next
-		if (up_next == 'H')
-			up_next = 'M';
-		else
-			up_next = 'H';
-
-		winner = board->find_winner();
-
-	}
-	int ai_winner;
-	if (winner == 'H') {
-		ai_winner = 1;
+	if (player == 'H') {
+		//most left position is .1 and goes up by .2
+		//on a domain of -1.0, 1.0
+		selection = unit_conversion(user_coin->locations[user_coin->locations.size() - 1].x); // very statically based off of coin size
 	}
 	else {
-		ai_winner = 2;
+		//stuff for ai
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
 	}
 
-	std::cout << "Winner is: " << ai_winner << std::endl;
+	board->update_board(selection, player, false); // doesn't update if invalid placement
+	board->print_board();
+}
 
+void play_machine(Board* board, char player) {
+	//AI vs AI
+	int selection = 0;
+	int selection_val;
+	if (player == 'H') {
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'H', selection, true);//dont think i actually need this value
+	}
+	else {
+		selection_val = board->minimax(board->game_board, 8, neg_inf, inf, true, 'M', selection, true); //this perameter is the state after the user goes
+	}
+
+	board->update_board(selection, player, false);
+	board->print_board();
 
 }
 
@@ -478,17 +438,27 @@ void Board::update_board(int col, char player, bool in_minimax) {
 	}
 }
 
-void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* coin) { // can work with either coin type
-	coin->locations.clear();
+void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* current_coin, char player) { // can work with either coin type
+	current_coin->locations.clear();
 	for (int i = 0; i < game_board.size(); i++) {
 		for (int j = 0; j < game_board[0].size(); j++) {
-			if (game_board[i][j] != '*') {
-				coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+			if (game_board[i][j] == 'X' && player == 'H') {
+				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+			}
+			else if (game_board[i][j] == 'O' && player == 'M') {
+				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
 			}
 		}
 	}
 }
 
+void Board::fill_background(gameobject* blank) {
+	for (int i = 0; i < game_board.size(); i++) {
+		for(int j=0; j<game_board[0].size(); j++){
+			blank->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
+		}
+	}
+}
 
 std::vector<std::vector<char>> Board::child_board(std::vector<std::vector<char>> game_board_child, int col, char player, bool in_minimax) {
 	for (unsigned int i = 0; i < game_board_child.size(); i++) {
