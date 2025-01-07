@@ -15,8 +15,7 @@ Curretly graphically playable.
 
 This repo contains the visual studio solution, so you can boot that right up if you have MSVC installed, or you could clone it into a linux distro and build it with the included Makefile inside the connect4 directory.
 ### Controls
-To start playing against the computer, press space. From there you can use left and right arrow keys to align yourself. Press enter to confirm your move.
-To start playing Computer v. Computer, press '='. This will play one game.
+The start screen will display the controls in the terminal.
 
 ### Linux Dependancies
 To compile on linux, you will need to install a few OpenGL dependancies. You can do this with this command:
