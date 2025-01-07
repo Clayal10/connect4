@@ -9,13 +9,13 @@ char up_next = 'M'; //start with machine
 
 // Helper functions
 int unit_conversion(float visual_location) {
-	int buffer = (visual_location * 5) + 4.5;
+	int buffer = (visual_location * 5) + 3.5;
 	printf("converted to %d\n", buffer);
 	return buffer;
 }
 
 float h_conversion(int idx_location) {
-	return (idx_location - 4.5)/5.0;
+	return (idx_location - 3.5)/5.0;
 }
 //This is very silly
 //For connect 4, you'd think of 0, 0 as bottom left, but 0,0 on a 

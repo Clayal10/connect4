@@ -3,6 +3,7 @@
 #include<iostream>
 #include<vector>
 #include<mutex>
+#include<thread>
 
 #include "scolor.hpp"
 #include <glad/glad.h>
@@ -21,12 +22,15 @@ GLuint make_program(const char* vertex_file, const char* fragment_file);
 
 /****Defined in main****/
 void game_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+void winning_routine(char winner);
+void reset_game();
 
 //Objects
 /****Defined in game_helpers.cpp****/
 void init_helpers();
 void free_helpers();
+
+
 
 class gameobject{
 public:
@@ -35,6 +39,7 @@ public:
 	std::vector<glm::vec3> locations;
 	int init();
 	void draw();
+	// Should impliment a move() function
 	void set_color(float r, float g, float b);
 };
 

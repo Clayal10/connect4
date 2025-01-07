@@ -5,35 +5,26 @@
 //all objects are initialized right before the main loop
 int gameobject::init(){
 	float vertices[] = {
-		/*
-		0.1f, 0.1f, 0.0f, 	//top right
-		0.1f, -0.1f, 0.0f,	//bottom right 
-		-0.1f, -0.1f, 0.0f,	//bottom left
-		-0.1f, 0.1f, 0.0f,	//top left
-		*/
-		0.0f, 0.1f, 0.0f,		//top
-		0.07f, 0.07f, 0.0f,		//top right
-		0.1f, 0.0f, 0.0f,		//right
-		0.07f, -0.07f, 0.0f,	//bottom right 
-		0.0f, -0.1f, 0.0f,		//bottom
-		-0.07f, -0.07f, 0.0f,	//bottom left
-		-0.1f, 0.0f, 0.0f,		//left
-		-0.07f, 0.07f, 0.0f,	//top left
+
+		0.0f, 0.1f, 0.0f,		//0 top
+		0.07f, 0.07f, 0.0f,		//1 top right
+		0.1f, 0.0f, 0.0f,		//2 right
+		0.07f, -0.07f, 0.0f,	//3 bottom right 
+		0.0f, -0.1f, 0.0f,		//4 bottom
+		-0.07f, -0.07f, 0.0f,	//5 bottom left
+		-0.1f, 0.0f, 0.0f,		//6 left
+		-0.07f, 0.07f, 0.0f,	//7 top left
 	};
 
 	unsigned int indicies[] = {
-		/*
-		0, 1, 3,
-		1, 2, 3,
-		*/
-		0, 5, 2,
-		1, 6, 3,
-		2, 7, 4,
-		3, 0, 5,
-		4, 1, 6,
-		5, 2, 7,
-		6, 3, 0,
-		7, 4, 1,
+
+		0, 2, 4,
+		4, 6, 0,
+		0, 2, 1,
+		2, 4, 3,
+		4, 6, 5,
+		6, 0, 7,
+
 	};
 	
 	glGenVertexArrays(1, &VAO);
@@ -65,8 +56,6 @@ int gameobject::init(){
 //Called in the main loop
 void gameobject::draw(){
 	
-
-	/****Movement****/
 	
 	glUseProgram(shader_program);
 
@@ -94,4 +83,5 @@ void gameobject::set_color(float r, float g, float b) {
 	green = g;
 	blue = b;
 }
+
 
