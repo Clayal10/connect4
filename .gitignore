@@ -27,13 +27,13 @@
 *.exe
 *.out
 *.app
-play
 
 #visual studio things
 x64*
 *~
 .vs*
 Debug*
+*.zip
 
 #linux things
 play

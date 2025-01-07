@@ -17,9 +17,14 @@ Board* board = new Board();
 int coin_amount;
 
 bool machine_play = false;
+bool end_routine = false;
 void machine_playing();
+void start_screen();
 
 int main() {
+	
+	start_screen();
+
 	init_helpers();
 	/****Window Creation****/
 	GLFWwindow* window;
@@ -49,9 +54,9 @@ int main() {
 
 	/****End of Window Creation****/
 	/****Object Creation****/
-	coin.set_color(1.0f, 0.0f, 0.0f);
-	auto_coin.set_color(1.0f, 1.0f, 0.0f);
-	blank.set_color(0.0f, 0.0f, 0.0f);
+	coin.set_color(0.973f, 0.016f, 0.008f);
+	auto_coin.set_color(1.0f, 0.851f, 0.031f);
+	blank.set_color(1.0f, 1.0f, 1.0f);
 	board->fill_background(&blank); // adds locations of the board
 
 	objects.push_back(&blank); // putting this first paints it on the background in main loop
@@ -69,8 +74,8 @@ int main() {
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
 		coin_amount = coin.locations.size()-1;
-	
-		glClearColor(0.0f, 0.0f, 0.541f, 1.0f);
+		
+		glClearColor(0.008f, 0.227f, 0.639f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
 
@@ -103,13 +108,8 @@ void machine_playing() {
 
 	char winner = board->find_winner();
 	if (winner != 'Z') {
-		printf(GREEN("Winner is %c\n").c_str(), winner);
-		for (auto GO : objects) {
-			GO->locations.clear();
-		}
-		board->reset_board();
+		winning_routine(winner);
 		machine_play = false;
-		board->fill_background(&blank);
 		return;
 	}
 	play_machine(board, 'M');
@@ -117,13 +117,8 @@ void machine_playing() {
 
 	winner = board->find_winner();
 	if (winner != 'Z') {
-		printf(GREEN("Winner is %c\n").c_str(), winner);
-		for (auto GO : objects) {
-			GO->locations.clear();
-		}
-		board->reset_board();
+		winning_routine(winner);
 		machine_play = false;
-		board->fill_background(&blank);
 		return;
 	}
 
@@ -134,11 +129,17 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 		puts(RED("Window Closed by User").c_str());
 		glfwSetWindowShouldClose(window, true);
 	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { // Clear Board
+		if (end_routine) {
+			reset_game();
+			end_routine = false;
+		}
+	}
 
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { // Start PvM
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { // Start PvM
 		coin.locations.push_back(glm::vec3(0.9f, 0.5f, 0.0f));
 	}
-	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) { // Start MvM
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) { // Start MvM
 		machine_play = true;
 	}
 
@@ -155,7 +156,8 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) { // Select
-		if (coin.locations[coin_amount].x > 0.3f) {
+		if (coin_amount == -1) return;
+		if (coin.locations[coin_amount].x > 0.5f || coin.locations[coin_amount].x < -0.7 || end_routine) {
 			return;
 		}
 		play_human(board, &coin, 'H');
@@ -166,15 +168,41 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 		coin.locations.push_back(glm::vec3(0.9f, 0.5f, 0.0f)); //put back coin at the start
 
 		char winner = board->find_winner();
-		if (winner != 'Z') {
-			printf(GREEN("Winner is %c\n").c_str(), winner);
-			for (auto GO : objects) {
-				GO->locations.clear();
-			}
-			board->reset_board();
-			board->fill_background(&blank);
-
-		}
-
+		winning_routine(winner);
 	}
+}
+
+//This function can allow for more ceremony when a player wins
+void winning_routine(char winner) {
+	if (winner == 'Z') {
+		return;
+	}
+	else {
+		printf(GREEN("Winner is %c\n").c_str(), winner);
+		end_routine = true;
+	}
+}
+
+void reset_game() {
+	for (auto GO : objects) {
+		GO->locations.clear();
+	}
+	board->reset_board();
+	board->fill_background(&blank);
+}
+
+void start_screen() {
+	//Start Screen
+	printf("\n\n********************************************");
+	printf("\n*          ");
+	printf(BLUE("Welcome to Connect 4!           ").c_str());
+	printf("*\n*Controls:     P - Start Player vs Machine *");
+	printf("\n*              M - Start Machine vs Machine*");
+	printf("\n* <-and-> Arrows - Move player piece       *");
+	printf("\n*    'Enter' key - Select the Column       *");
+	printf("\n*    'Space' key - Reset the game          *");
+	printf("\n*      'ESC' Key - Close Window            *");
+	printf("\n********************************************");
+	std::cout << "\nPress Enter to Start: ";
+	std::cin.get();
 }
