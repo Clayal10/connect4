@@ -9,17 +9,19 @@ std::mutex grand_mutex;
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
+int coin_amount = 0;
+int shutdown_engine = 0;
 
 gameobject coin; // user coin
 gameobject auto_coin; // machine coin
 gameobject blank; //background for non selected spaces
 Board* board = new Board();
-int coin_amount;
 
 bool machine_play = false;
 bool end_routine = false;
 void machine_playing();
 void start_screen();
+void move_pieces();
 
 int main() {
 	
@@ -56,7 +58,7 @@ int main() {
 	/****Object Creation****/
 	coin.set_color(0.973f, 0.016f, 0.008f);
 	auto_coin.set_color(1.0f, 0.851f, 0.031f);
-	blank.set_color(1.0f, 1.0f, 1.0f);
+	blank.set_color(0.1f, 0.1f, 0.1f);
 	board->fill_background(&blank); // adds locations of the board
 
 	objects.push_back(&blank); // putting this first paints it on the background in main loop
@@ -70,7 +72,7 @@ int main() {
 	/***End of Object Creation****/	
 	srand((unsigned int)time(0));
 
-
+	std::thread piece_movement_thread(move_pieces); // not being called?
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
 		coin_amount = coin.locations.size()-1;
@@ -92,7 +94,9 @@ int main() {
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 	}
+	shutdown_engine = 1;
 
+	piece_movement_thread.join();
 	glfwTerminate();
 	delete board;
 	free_helpers();
@@ -100,10 +104,19 @@ int main() {
 	return 0;
 }
 
+// Could impliment some time to make sure it doesn't get too fast
+// Wouldn't be a problem on my laptop
+void move_pieces() {
+	while (!shutdown_engine) {
+		for (auto o : objects) {
+			o->move();
+		}
+	}
+}
 
 void machine_playing() {
 	
-	play_machine(board, 'H');
+	play_machine(board, &coin, 'H');
 	update_board_visuals(board->game_board, &coin, 'H');
 
 	char winner = board->find_winner();
@@ -112,7 +125,7 @@ void machine_playing() {
 		machine_play = false;
 		return;
 	}
-	play_machine(board, 'M');
+	play_machine(board, &auto_coin, 'M');
 	update_board_visuals(board->game_board, &auto_coin, 'M');
 
 	winner = board->find_winner();
@@ -184,8 +197,8 @@ void winning_routine(char winner) {
 }
 
 void reset_game() {
-	for (auto GO : objects) {
-		GO->locations.clear();
+	for (auto o : objects) {
+		o->locations.clear();
 	}
 	board->reset_board();
 	board->fill_background(&blank);

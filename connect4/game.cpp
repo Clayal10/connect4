@@ -13,24 +13,16 @@ int unit_conversion(float visual_location) {
 	printf("converted to %d\n", buffer);
 	return buffer;
 }
+int v_unit_conversion(float visual_location) {
+	return -5*visual_location + 0.5;
+}
 
 float h_conversion(int idx_location) {
 	return (idx_location - 3.5)/5.0;
 }
-//This is very silly
-//For connect 4, you'd think of 0, 0 as bottom left, but 0,0 on a 
-//	2d vector is top left. I'm not smart enough to make the conversion
+
 float v_conversion(int idx_location) {
-	float buffer = 0;
-	switch (idx_location) {
-		case 0: buffer = 0.1; break;
-		case 1: buffer = -0.1; break;
-		case 2: buffer = -0.3; break;
-		case 3: buffer = -0.5; break;
-		case 4: buffer = -0.7; break;
-		case 5: buffer = -0.9; break;
-	}
-	return buffer;
+	return -idx_location / 5.0 + 0.1;
 }
 
 
@@ -51,9 +43,14 @@ void play_human(Board* board, gameobject* user_coin, char player) {
 
 	board->update_board(selection, player, false); // doesn't update if invalid placement
 	board->print_board();
+
+	if (player == 'M') {
+		user_coin->locations.push_back(glm::vec3(h_conversion(selection), 0.5f, 0.0f));
+	}
+
 }
 
-void play_machine(Board* board, char player) {
+void play_machine(Board* board, gameobject* machine_coin, char player) {
 	//AI vs AI
 	int selection = 0;
 	int selection_val;
@@ -67,6 +64,7 @@ void play_machine(Board* board, char player) {
 	board->update_board(selection, player, false);
 	board->print_board();
 
+	machine_coin->locations.push_back(glm::vec3(h_conversion(selection), 0.5f, 0.0f));
 }
 
 int Board::minimax(std::vector<std::vector<char>> game_board, int depth, int alpha, int beta, bool maximizing_player, char player, int& selection, bool first_time){
@@ -437,10 +435,34 @@ void Board::update_board(int col, char player, bool in_minimax) {
 		}
 	}
 }
+//Lets change this around
+//	- We won't need to clear the locations every time and re-do them.
+//		- Pass in the location as a perameter
+//		- The current_coin has the location at ->locations[coin_amount] and we have the location of where we want it.
+//		- calculate the distance and run it in the move() function i will make that many times.
+//
 
 void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* current_coin, char player) { // can work with either coin type
-	current_coin->locations.clear();
+	//current_coin->locations.clear();
+	int current_col = unit_conversion(current_coin->locations[coin_amount].x);
+	float travel_distance;
 	for (int i = 0; i < game_board.size(); i++) {
+		//if (current_coin->in_spot(i, current_col)) {
+			//found the coin that the current coin would be put on top of
+			//travel_distance = current_coin->locations[coin_amount].y - v_conversion(i) - 0.2;
+		//}
+		if (game_board[i][current_col] == 'X' && player == 'H') {
+			travel_distance = 0.5 - v_conversion(i);
+			current_coin->vertical_movement = travel_distance;
+			break;
+		}
+		if (game_board[i][current_col] == 'O' && player == 'M') {
+			travel_distance = 0.5 - v_conversion(i);
+			current_coin->vertical_movement = travel_distance; // might be weird
+			break;
+		}
+		//TODO impliment move function for the coin
+		/*
 		for (int j = 0; j < game_board[0].size(); j++) {
 			if (game_board[i][j] == 'X' && player == 'H') {
 				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
@@ -449,6 +471,7 @@ void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject*
 				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
 			}
 		}
+		*/
 	}
 }
 

@@ -1,18 +1,19 @@
 #include "helpers.hpp"
 
-
-
 //all objects are initialized right before the main loop
 int gameobject::init(){
+	vertical_movement = 0; // should declare this
+	speed = 0.01f;
+
 	float vertices[] = {
 
-		0.0f, 0.1f, 0.0f,		//0 top
+		0.0f, 0.095f, 0.0f,		//0 top
 		0.07f, 0.07f, 0.0f,		//1 top right
-		0.1f, 0.0f, 0.0f,		//2 right
+		0.095f, 0.0f, 0.0f,		//2 right
 		0.07f, -0.07f, 0.0f,	//3 bottom right 
-		0.0f, -0.1f, 0.0f,		//4 bottom
+		0.0f, -0.095f, 0.0f,	//4 bottom
 		-0.07f, -0.07f, 0.0f,	//5 bottom left
-		-0.1f, 0.0f, 0.0f,		//6 left
+		-0.095f, 0.0f, 0.0f,	//6 left
 		-0.07f, 0.07f, 0.0f,	//7 top left
 	};
 
@@ -82,6 +83,26 @@ void gameobject::set_color(float r, float g, float b) {
 	red = r;
 	green = g;
 	blue = b;
+}
+
+bool gameobject::in_spot(int row, int col) {
+	for (unsigned int i = 0; i < locations.size(); i++) {
+		if (unit_conversion(locations[i].x) == col && v_unit_conversion(locations[i].y == row)){
+			return true;
+		}
+	}
+	return false;
+}
+
+void gameobject::move() {
+	// vertical_movement is a single variable for every location in each instance of the gameobject.
+	//		-keep this in mind
+	puts("called move");
+	if (vertical_movement > 0) {
+		puts(RED("Entered if statement").c_str());
+		locations[coin_amount].y -= speed; // FIX CREATING THE NEXT OBJECT BEFORE THIS ONE IS DONE WITH
+		vertical_movement -= speed;
+	}
 }
 
 

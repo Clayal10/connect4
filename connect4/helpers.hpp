@@ -35,17 +35,23 @@ void free_helpers();
 class gameobject{
 public:
 	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib, mvp_uniform, vertex_color;
-	float red, green, blue;
+	float red, green, blue, vertical_movement, speed;
 	std::vector<glm::vec3> locations;
 	int init();
 	void draw();
-	// Should impliment a move() function
+	void move(); // This will be called in a seperately threaded function
 	void set_color(float r, float g, float b);
+	bool in_spot(int row, int col);
 };
 
 /****Defined in game.cpp****/
 void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* coin, char player);
+int unit_conversion(float visual_location);
+int v_unit_conversion(float visual_location);
+float h_conversion(int idx_location);
+float v_conversion(int idx_location);
 
 
 
-
+extern int coin_amount;
+extern int shutdown_engine;
