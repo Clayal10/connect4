@@ -444,13 +444,10 @@ void Board::update_board(int col, char player, bool in_minimax) {
 
 void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject* current_coin, char player) { // can work with either coin type
 	//current_coin->locations.clear();
-	int current_col = unit_conversion(current_coin->locations[coin_amount].x);
+	int current_col = unit_conversion(current_coin->locations[current_coin->locations.size()-1].x);
 	float travel_distance;
 	for (int i = 0; i < game_board.size(); i++) {
-		//if (current_coin->in_spot(i, current_col)) {
-			//found the coin that the current coin would be put on top of
-			//travel_distance = current_coin->locations[coin_amount].y - v_conversion(i) - 0.2;
-		//}
+
 		if (game_board[i][current_col] == 'X' && player == 'H') {
 			travel_distance = 0.5 - v_conversion(i);
 			current_coin->vertical_movement = travel_distance;
@@ -461,17 +458,7 @@ void update_board_visuals(std::vector<std::vector<char>> game_board, gameobject*
 			current_coin->vertical_movement = travel_distance; // might be weird
 			break;
 		}
-		//TODO impliment move function for the coin
-		/*
-		for (int j = 0; j < game_board[0].size(); j++) {
-			if (game_board[i][j] == 'X' && player == 'H') {
-				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
-			}
-			else if (game_board[i][j] == 'O' && player == 'M') {
-				current_coin->locations.push_back(glm::vec3(h_conversion(j), v_conversion(i), 0.0f));
-			}
-		}
-		*/
+
 	}
 }
 

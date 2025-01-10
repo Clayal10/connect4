@@ -97,11 +97,18 @@ bool gameobject::in_spot(int row, int col) {
 void gameobject::move() {
 	// vertical_movement is a single variable for every location in each instance of the gameobject.
 	//		-keep this in mind
-	puts("called move");
-	if (vertical_movement > 0) {
-		puts(RED("Entered if statement").c_str());
-		locations[coin_amount].y -= speed; // FIX CREATING THE NEXT OBJECT BEFORE THIS ONE IS DONE WITH
+	//puts("called move");
+	if (green > 0.5) {
+		current_idx = locations.size() - 1;
+	}
+	if (vertical_movement > speed) {
+		//printf(DGREEN("Started moving %f, %d\n").c_str(), green, current_idx);
+		locations[current_idx].y -= speed; // FIX CREATING THE NEXT OBJECT BEFORE THIS ONE IS DONE WITH
 		vertical_movement -= speed;
+	}
+	else {
+		if (locations.size() == 0 || green > 0.5) return;
+		current_idx = locations.size() - 1;
 	}
 }
 

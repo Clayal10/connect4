@@ -13,6 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+
 //Prototypes
 /****Defined in window_helpers.cpp****/
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -34,7 +35,7 @@ void free_helpers();
 
 class gameobject{
 public:
-	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib, mvp_uniform, vertex_color;
+	unsigned int VBO, VAO, EBO, shader_program, vertex_attrib, mvp_uniform, vertex_color, current_idx;
 	float red, green, blue, vertical_movement, speed;
 	std::vector<glm::vec3> locations;
 	int init();

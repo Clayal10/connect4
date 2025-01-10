@@ -1,11 +1,12 @@
 #include "game_board.hpp"
-#include "helpers.hpp"
+//#include "helpers.hpp"
 #include "scolor.hpp"
 
 using namespace std;
 
 std::vector<gameobject*> objects;
 std::mutex grand_mutex;
+
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
@@ -72,24 +73,23 @@ int main() {
 	/***End of Object Creation****/	
 	srand((unsigned int)time(0));
 
-	std::thread piece_movement_thread(move_pieces); // not being called?
+	std::thread piece_movement_thread(move_pieces);
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
-		coin_amount = coin.locations.size()-1;
 		
 		glClearColor(0.008f, 0.227f, 0.639f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
 
 		if (machine_play) {
-			machine_playing();
+			machine_playing(); // This doesn't wait for the coin to go to the bottom
 		}
 		
 		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
 		for(gameobject* obj : objects){
 			obj->draw();
 		}
-
+		coin_amount = coin.locations.size() - 1;
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -106,11 +106,14 @@ int main() {
 
 // Could impliment some time to make sure it doesn't get too fast
 // Wouldn't be a problem on my laptop
-void move_pieces() {
+void move_pieces() { // way too quick
 	while (!shutdown_engine) {
+		auto start = std::chrono::system_clock::now();
 		for (auto o : objects) {
 			o->move();
 		}
+		auto end = std::chrono::system_clock::now();
+		std::this_thread::sleep_for(std::chrono::microseconds(1000) - (start - end)); // basically 1000 fps
 	}
 }
 
@@ -173,10 +176,12 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 		if (coin.locations[coin_amount].x > 0.5f || coin.locations[coin_amount].x < -0.7 || end_routine) {
 			return;
 		}
+		//grand_mutex.lock();
 		play_human(board, &coin, 'H');
 		update_board_visuals(board->game_board, &coin, 'H');
 		play_human(board, &auto_coin, 'M');
 		update_board_visuals(board->game_board, &auto_coin, 'M');
+		//grand_mutex.unlock();
 
 		coin.locations.push_back(glm::vec3(0.9f, 0.5f, 0.0f)); //put back coin at the start
 
