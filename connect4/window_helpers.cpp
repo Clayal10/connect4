@@ -25,7 +25,7 @@ GLuint make_shader(const char* filename, GLenum shaderType){
 	FILE* fd = fopen(filename, "r"); // linux
 	//int err = fopen_s(&fd, filename, "r"); //windows
 	//if (err != 0) {
-        if(!fd){
+    if(!fd){
    		printf("File not found:  %s\n", filename);
         	return 0;
 	}

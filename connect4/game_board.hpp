@@ -8,10 +8,6 @@
 
 #include "helpers.hpp"
 
-//TODO
-//	-Clean up find_winner()
-//	-Make it a 2d game!
-
 class Board {
 public:
 	std::vector<std::vector<char>> game_board;
@@ -144,4 +140,4 @@ public:
 };
 
 void play_human(Board* board, gameobject* user_coin, char next);
-void play_machine(Board* board, char player);
+void play_machine(Board* board, gameobject* machine_coin, char player);

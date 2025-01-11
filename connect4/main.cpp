@@ -1,5 +1,5 @@
 #include "game_board.hpp"
-#include "helpers.hpp"
+//#include "helpers.hpp"
 #include "scolor.hpp"
 
 using namespace std;
@@ -7,19 +7,25 @@ using namespace std;
 std::vector<gameobject*> objects;
 std::mutex grand_mutex;
 
+
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
+int coin_amount = 0;
+int shutdown_engine = 0;
 
 gameobject coin; // user coin
 gameobject auto_coin; // machine coin
+gameobject auto_human; // 'H' for machine_playing
 gameobject blank; //background for non selected spaces
 Board* board = new Board();
-int coin_amount;
 
 bool machine_play = false;
 bool end_routine = false;
+bool in_calculation = false;
 void machine_playing();
 void start_screen();
+void move_pieces();
+void machine_movement();
 
 int main() {
 	
@@ -56,12 +62,14 @@ int main() {
 	/****Object Creation****/
 	coin.set_color(0.973f, 0.016f, 0.008f);
 	auto_coin.set_color(1.0f, 0.851f, 0.031f);
-	blank.set_color(1.0f, 1.0f, 1.0f);
+	auto_human.set_color(0.05f, 0.95f, 0.1f); // The reason this coin is green is funny.
+	blank.set_color(0.1f, 0.1f, 0.1f);
 	board->fill_background(&blank); // adds locations of the board
 
 	objects.push_back(&blank); // putting this first paints it on the background in main loop
 	objects.push_back(&coin);
 	objects.push_back(&auto_coin);
+	objects.push_back(&auto_human);
 	
 	for(gameobject* obj : objects){
 		obj->init();
@@ -70,29 +78,31 @@ int main() {
 	/***End of Object Creation****/	
 	srand((unsigned int)time(0));
 
-
+	std::thread piece_movement_thread(move_pieces);
+	std::thread machine_thread(machine_movement);
+	std::thread auto_machine_thread(machine_playing);
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
-		coin_amount = coin.locations.size()-1;
 		
 		glClearColor(0.008f, 0.227f, 0.639f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
-
-		if (machine_play) {
-			machine_playing();
-		}
 		
-		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
+
+		//move_pieces();
 		for(gameobject* obj : objects){
 			obj->draw();
 		}
-
+		coin_amount = coin.locations.size() - 1;
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 	}
+	shutdown_engine = 1;
 
+	piece_movement_thread.join();
+	machine_thread.join();
+	auto_machine_thread.join();
 	glfwTerminate();
 	delete board;
 	free_helpers();
@@ -100,28 +110,58 @@ int main() {
 	return 0;
 }
 
+// Could impliment some time to make sure it doesn't get too fast
+// Wouldn't be a problem on my laptop
+void move_pieces() { // way too quick
+	while (!shutdown_engine) {
+		auto start = std::chrono::system_clock::now();
+		for (auto o : objects) {
+			o->move();
+		}
+		auto end = std::chrono::system_clock::now();
+		std::this_thread::sleep_for(std::chrono::microseconds(1000) - (start - end)); // basically 1000 fps
+	}
+}
+//Using this global variable in_calculation allows me to do AI calculation in a seperate thread
+void machine_movement() {
+	while (!shutdown_engine) {
+		if (in_calculation) {
+			play_human(board, &auto_coin, 'M');
+			update_board_visuals(board->game_board, &auto_coin, 'M');
+			in_calculation = false;
+		}
+	}
+}
 
 void machine_playing() {
-	
-	play_machine(board, 'H');
-	update_board_visuals(board->game_board, &coin, 'H');
+	while (!shutdown_engine) {
+		if (!machine_play) continue;
 
-	char winner = board->find_winner();
-	if (winner != 'Z') {
-		winning_routine(winner);
-		machine_play = false;
-		return;
+		play_machine(board, &auto_human, 'H');
+		update_board_visuals(board->game_board, &auto_human, 'H');
+		while (auto_human.vertical_movement > auto_human.speed) {
+			//wait till the coin is done moving
+		}
+
+		char winner = board->find_winner();
+		if (winner != 'Z') {
+			winning_routine(winner);
+			machine_play = false;
+			continue;
+		}
+		play_machine(board, &auto_coin, 'M');
+		update_board_visuals(board->game_board, &auto_coin, 'M');
+		while (auto_coin.vertical_movement > auto_coin.speed) {
+			//wait till the coin is done moving
+		}
+
+		winner = board->find_winner();
+		if (winner != 'Z') {
+			winning_routine(winner);
+			machine_play = false;
+			continue;
+		}
 	}
-	play_machine(board, 'M');
-	update_board_visuals(board->game_board, &auto_coin, 'M');
-
-	winner = board->find_winner();
-	if (winner != 'Z') {
-		winning_routine(winner);
-		machine_play = false;
-		return;
-	}
-
 }
 
 void game_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -160,10 +200,17 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 		if (coin.locations[coin_amount].x > 0.5f || coin.locations[coin_amount].x < -0.7 || end_routine) {
 			return;
 		}
+		//grand_mutex.lock();
+		
 		play_human(board, &coin, 'H');
 		update_board_visuals(board->game_board, &coin, 'H');
-		play_human(board, &auto_coin, 'M');
-		update_board_visuals(board->game_board, &auto_coin, 'M');
+		in_calculation = true;
+
+		//play_human(board, &auto_coin, 'M');
+		//update_board_visuals(board->game_board, &auto_coin, 'M');
+		
+
+		//grand_mutex.unlock();
 
 		coin.locations.push_back(glm::vec3(0.9f, 0.5f, 0.0f)); //put back coin at the start
 
@@ -184,8 +231,8 @@ void winning_routine(char winner) {
 }
 
 void reset_game() {
-	for (auto GO : objects) {
-		GO->locations.clear();
+	for (auto o : objects) {
+		o->locations.clear();
 	}
 	board->reset_board();
 	board->fill_background(&blank);
