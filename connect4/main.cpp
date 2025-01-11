@@ -147,7 +147,7 @@ void machine_playing() {
 		if (winner != 'Z') {
 			winning_routine(winner);
 			machine_play = false;
-			return;
+			continue;
 		}
 		play_machine(board, &auto_coin, 'M');
 		update_board_visuals(board->game_board, &auto_coin, 'M');
@@ -159,7 +159,7 @@ void machine_playing() {
 		if (winner != 'Z') {
 			winning_routine(winner);
 			machine_play = false;
-			return;
+			continue;
 		}
 	}
 }
