@@ -1,13 +1,8 @@
-Seperated movement thread.
-	- If we can give each location of a gameobject it's own vertical_movement, then we can have multiple coins moving at the same time. This would benefit the machine_playing() greatly. 
-	- In gameobject::move(), we iterate through every location in a for loop and if their vertical_movement value is > 0, decrease it by speed.
-	- How can we go about this? options:
-		1) create an std::vector<float> where we have a parallel set of values for std::vector locations.
-		CONS: indexes could get out of wack having two seperate lists.
-		2) the std::vector locations could be a vector of some struct that includes a glm::vec3 and that pieces' vertical_movement.
-		CONS: the locations vector is used in many places, but not all of them would have to be changed. For example, if a line of code is trying to get the .size(), then nothing needs to be changed.
+Everything seems to be working for what I want.
 
-Changing coin.locations to hold objects instead of glm::vec3's:
-	Need to replace in play_human, play_machine, fill_background, and one place in key_callback
+Things that could be better:
+	- User error handling
+	- Better alert for a winning game
+	- Maybe sounds or on screen text.
 
 

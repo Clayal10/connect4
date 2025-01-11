@@ -15,6 +15,7 @@ int shutdown_engine = 0;
 
 gameobject coin; // user coin
 gameobject auto_coin; // machine coin
+gameobject auto_human; // 'H' for machine_playing
 gameobject blank; //background for non selected spaces
 Board* board = new Board();
 
@@ -61,12 +62,14 @@ int main() {
 	/****Object Creation****/
 	coin.set_color(0.973f, 0.016f, 0.008f);
 	auto_coin.set_color(1.0f, 0.851f, 0.031f);
+	auto_human.set_color(0.05f, 0.95f, 0.1f); // The reason this coin is green is funny.
 	blank.set_color(0.1f, 0.1f, 0.1f);
 	board->fill_background(&blank); // adds locations of the board
 
 	objects.push_back(&blank); // putting this first paints it on the background in main loop
 	objects.push_back(&coin);
 	objects.push_back(&auto_coin);
+	objects.push_back(&auto_human);
 	
 	for(gameobject* obj : objects){
 		obj->init();
@@ -77,18 +80,15 @@ int main() {
 
 	std::thread piece_movement_thread(move_pieces);
 	std::thread machine_thread(machine_movement);
+	std::thread auto_machine_thread(machine_playing);
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
 		
 		glClearColor(0.008f, 0.227f, 0.639f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
-
-		if (machine_play) {
-			machine_playing(); // This doesn't wait for the coin to go to the bottom
-		}
 		
-		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
+
 		//move_pieces();
 		for(gameobject* obj : objects){
 			obj->draw();
@@ -100,8 +100,9 @@ int main() {
 	}
 	shutdown_engine = 1;
 
-	//piece_movement_thread.join();
-	//drawing_object_thread.join();
+	piece_movement_thread.join();
+	machine_thread.join();
+	auto_machine_thread.join();
 	glfwTerminate();
 	delete board;
 	free_helpers();
@@ -133,26 +134,34 @@ void machine_movement() {
 }
 
 void machine_playing() {
-	
-	play_machine(board, &coin, 'H');
-	update_board_visuals(board->game_board, &coin, 'H');
+	while (!shutdown_engine) {
+		if (!machine_play) continue;
 
-	char winner = board->find_winner();
-	if (winner != 'Z') {
-		winning_routine(winner);
-		machine_play = false;
-		return;
+		play_machine(board, &auto_human, 'H');
+		update_board_visuals(board->game_board, &auto_human, 'H');
+		while (auto_human.vertical_movement > auto_human.speed) {
+			//wait till the coin is done moving
+		}
+
+		char winner = board->find_winner();
+		if (winner != 'Z') {
+			winning_routine(winner);
+			machine_play = false;
+			return;
+		}
+		play_machine(board, &auto_coin, 'M');
+		update_board_visuals(board->game_board, &auto_coin, 'M');
+		while (auto_coin.vertical_movement > auto_coin.speed) {
+			//wait till the coin is done moving
+		}
+
+		winner = board->find_winner();
+		if (winner != 'Z') {
+			winning_routine(winner);
+			machine_play = false;
+			return;
+		}
 	}
-	play_machine(board, &auto_coin, 'M');
-	update_board_visuals(board->game_board, &auto_coin, 'M');
-
-	winner = board->find_winner();
-	if (winner != 'Z') {
-		winning_routine(winner);
-		machine_play = false;
-		return;
-	}
-
 }
 
 void game_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
