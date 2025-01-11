@@ -20,9 +20,11 @@ Board* board = new Board();
 
 bool machine_play = false;
 bool end_routine = false;
+bool in_calculation = false;
 void machine_playing();
 void start_screen();
 void move_pieces();
+void machine_movement();
 
 int main() {
 	
@@ -74,6 +76,7 @@ int main() {
 	srand((unsigned int)time(0));
 
 	std::thread piece_movement_thread(move_pieces);
+	std::thread machine_thread(machine_movement);
 	/****Main Loop, Called every frame****/
 	while (!glfwWindowShouldClose(window)){
 		
@@ -86,6 +89,7 @@ int main() {
 		}
 		
 		//glm::mat4 vp = glm::perspective(3.14159f/1.5f, 1.0f, 0.1f, 1000.0f);
+		//move_pieces();
 		for(gameobject* obj : objects){
 			obj->draw();
 		}
@@ -96,7 +100,8 @@ int main() {
 	}
 	shutdown_engine = 1;
 
-	piece_movement_thread.join();
+	//piece_movement_thread.join();
+	//drawing_object_thread.join();
 	glfwTerminate();
 	delete board;
 	free_helpers();
@@ -114,6 +119,16 @@ void move_pieces() { // way too quick
 		}
 		auto end = std::chrono::system_clock::now();
 		std::this_thread::sleep_for(std::chrono::microseconds(1000) - (start - end)); // basically 1000 fps
+	}
+}
+//Using this global variable in_calculation allows me to do AI calculation in a seperate thread
+void machine_movement() {
+	while (!shutdown_engine) {
+		if (in_calculation) {
+			play_human(board, &auto_coin, 'M');
+			update_board_visuals(board->game_board, &auto_coin, 'M');
+			in_calculation = false;
+		}
 	}
 }
 
@@ -177,10 +192,15 @@ void game_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 			return;
 		}
 		//grand_mutex.lock();
+		
 		play_human(board, &coin, 'H');
 		update_board_visuals(board->game_board, &coin, 'H');
-		play_human(board, &auto_coin, 'M');
-		update_board_visuals(board->game_board, &auto_coin, 'M');
+		in_calculation = true;
+
+		//play_human(board, &auto_coin, 'M');
+		//update_board_visuals(board->game_board, &auto_coin, 'M');
+		
+
 		//grand_mutex.unlock();
 
 		coin.locations.push_back(glm::vec3(0.9f, 0.5f, 0.0f)); //put back coin at the start

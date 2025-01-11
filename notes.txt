@@ -7,6 +7,7 @@ Seperated movement thread.
 		2) the std::vector locations could be a vector of some struct that includes a glm::vec3 and that pieces' vertical_movement.
 		CONS: the locations vector is used in many places, but not all of them would have to be changed. For example, if a line of code is trying to get the .size(), then nothing needs to be changed.
 
-Selection Delay.
-	- Need to figure out why there is some delay in the coin visually moving (the vertical_movment is still being changed). 
-	- My guess is draw() isn't being called due to minimax calculations but the movement thread is working. Maybe lock the mutex? Can test on my better computer.
+Changing coin.locations to hold objects instead of glm::vec3's:
+	Need to replace in play_human, play_machine, fill_background, and one place in key_callback
+
+
