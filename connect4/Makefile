@@ -1,6 +1,6 @@
 CXXFLAGS = -g -Wall
 EXFLAG = -o play
-LDFLAGS = -lGL -lGLEW -lglfw -pthread -g
+LDFLAGS = -ldl -lGL -lGLEW -lglfw -pthread -g
 
 
 all:
